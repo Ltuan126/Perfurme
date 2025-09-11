@@ -4,13 +4,34 @@
 @tailwind utilities;
 
 /* Global Styles */
+
 body {
-  @apply bg-gray-100 min-h-screen;
+  @apply min-h-screen text-slate-800;
+  background: radial-gradient(1200px 600px at 10% -10%, #eff6ff 0%, rgba(239,246,255,0) 70%),
+              linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+/* Helpers */
+.section {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10;
+}
+.title {
+  @apply text-3xl font-bold text-slate-800 mb-8 text-center tracking-tight;
+}
+.glass {
+  @apply bg-white/80 backdrop-blur rounded-2xl shadow-lg border;
+  border-color: rgba(226,232,240,.6);
+}
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white rounded-full px-5 py-2 font-medium shadow-sm transition;
+}
+.btn-outline {
+  @apply border border-slate-300 bg-white hover:bg-slate-50 rounded-full px-5 py-2 font-medium shadow-sm transition;
 }
 
 /* Main container */
 .main-container {
-  @apply container mx-auto p-6;
+  @apply max-w-7xl mx-auto p-6;
 }
 
 /* Navbar */
@@ -34,7 +55,8 @@ body {
 
 /* Product Card */
 .product-card {
-  @apply bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow;
+  @apply bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-2xl transition;
+  border: 1px solid rgba(226,232,240,.6);
 }
 .product-img {
   @apply w-40 h-40 object-cover rounded-lg mb-4;
@@ -51,13 +73,14 @@ body {
 
 /* Product Detail */
 .product-detail {
-  @apply flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden;
+  @apply flex flex-col lg:flex-row bg-white/80 backdrop-blur rounded-2xl shadow-lg overflow-hidden;
+  border: 1px solid rgba(226,232,240,.6);
 }
 .detail-img {
   @apply w-full lg:w-1/2 h-80 object-cover;
 }
 .detail-content {
-  @apply p-6 flex flex-col justify-between;
+  @apply p-6 md:p-8 flex flex-col justify-between;
 }
 .detail-title {
   @apply text-2xl font-bold mb-4;
@@ -69,12 +92,13 @@ body {
   @apply text-xl font-semibold;
 }
 .detail-add {
-  @apply px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition;
+  @apply px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition;
 }
 
 /* Cart */
 .cart-wrapper {
-  @apply bg-white p-6 rounded-2xl shadow-lg;
+  @apply bg-white/80 backdrop-blur p-6 rounded-2xl shadow-lg;
+  border: 1px solid rgba(226,232,240,.6);
 }
 .cart-title {
   @apply text-2xl font-bold mb-4;

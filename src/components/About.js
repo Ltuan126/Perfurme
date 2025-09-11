@@ -3,50 +3,62 @@ import React from 'react';
 
 export default function About() {
   return (
-    <div className="max-w-5xl mx-auto py-12 px-6 text-gray-800">
-      <h1 className="text-4xl font-bold text-pink-600 mb-6">About Perfume Shop</h1>
-
-      <section className="mb-10">
-        <p className="text-lg leading-7">
-          Welcome to <span className="font-semibold">Perfume Shop</span> — where passion meets fragrance.
-          We are dedicated to bringing you the finest selection of premium perfumes from around the world.
-          Every scent is carefully curated to help you express your style, your personality, and your story.
-        </p>
+    <div>
+      {/* Hero */}
+      <section className="bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">Perfume Shop — Personal Project</h1>
+            <p className="mt-4 text-white/90 text-lg">Thực hiện bởi <span className="font-semibold">Lê Tuấn</span>. Dự án cá nhân tập trung vào trải nghiệm mua sắm nước hoa hiện đại.</p>
+          </div>
+          <div className="hidden md:block">
+            <div className="aspect-[4/3] rounded-3xl shadow-2xl border border-white/20 bg-white/20 backdrop-blur" />
+          </div>
+        </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Our Mission</h2>
-        <p className="leading-7">
-          Our mission is to inspire confidence through scent. We believe that the right perfume can uplift your mood,
-          mark special memories, and leave a lasting impression.
-        </p>
+      {/* Project summary */}
+      <section className="section">
+        <div className="glass p-8">
+          <h2 className="title mb-4">Giới thiệu dự án</h2>
+          <p className="text-slate-700 leading-7">
+            Perfume Shop là ứng dụng web thương mại đơn giản cho phép xem danh sách sản phẩm, xem chi tiết, thêm vào giỏ hàng,
+            đặt hàng COD, và quản trị sản phẩm cho admin. Dự án được xây dựng nhằm thực hành full‑stack (React + Node + MongoDB)
+            với giao diện hiện đại, gọn gàng, dễ mở rộng.
+          </p>
+        </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Our Vision</h2>
-        <p className="leading-7">
-          To become the leading online destination for perfume lovers in Vietnam and beyond —
-          offering authentic products, seamless experiences, and personal connections through fragrance.
-        </p>
+      {/* Features & Stack */}
+      <section className="section grid md:grid-cols-2 gap-6">
+        <div className="glass p-8">
+          <h3 className="text-2xl font-bold text-blue-700 mb-4">Tính năng chính</h3>
+          <ul className="list-disc pl-5 space-y-2 text-slate-700">
+            <li>Danh sách, chi tiết sản phẩm; tìm kiếm cơ bản.</li>
+            <li>Giỏ hàng, đặt hàng COD (đơn hàng lưu DB).</li>
+            <li>Trang quản trị: thêm/sửa/xóa sản phẩm.</li>
+            <li>Đăng nhập/đăng ký người dùng (localStorage).</li>
+            <li>UI hiện đại với Tailwind, responsive.</li>
+          </ul>
+        </div>
+        <div className="glass p-8">
+          <h3 className="text-2xl font-bold text-blue-700 mb-4">Tech stack</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+            {['React','React Router','Tailwind CSS','Node.js','Express','MongoDB','Mongoose'].map((t) => (
+              <div key={t} className="px-3 py-2 rounded-full bg-slate-100 text-slate-700 text-center border border-slate-200">{t}</div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Meet Our Team</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-6">
-          {[
-            { name: 'Lê Tuấn', role: 'Founder & Perfume Expert' },
-            { name: 'Ngọc Mai', role: 'Creative Director' },
-            { name: 'Minh Đạt', role: 'Customer Success' },
-          ].map((member, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded-xl shadow hover:shadow-md transition"
-            >
-              <div className="h-24 w-24 mx-auto bg-pink-100 rounded-full mb-4" />
-              <h3 className="text-lg font-semibold text-center">{member.name}</h3>
-              <p className="text-sm text-center text-gray-500">{member.role}</p>
-            </div>
-          ))}
+      {/* Personal note */}
+      <section className="section">
+        <div className="glass p-8 max-w-3xl mx-auto">
+          <h3 className="text-2xl font-bold text-blue-700 mb-4">Về tác giả</h3>
+          <p className="text-slate-700 leading-7">
+            Xin chào, mình là <span className="font-semibold">Lê Tuấn</span>. Mình yêu thích việc xây dựng sản phẩm web gọn nhẹ,
+            dễ dùng và tối ưu trải nghiệm. Dự án này là không gian để mình thực hành kiến trúc full‑stack và tinh chỉnh giao diện.
+          </p>
         </div>
       </section>
     </div>
