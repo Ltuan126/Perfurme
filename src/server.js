@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('./db');
 const Product = require('./models/Product');
+const authRoutes = require('./routes/auth');
+const { authRequired, requireRole } = require('./middleware/auth');
 const cors = require('cors');
 
 // Đơn hàng (đơn giản, COD)
@@ -17,6 +19,7 @@ const Order = mongoose.model('Order', orderSchema);
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/api/auth', authRoutes);
 
 // Lấy danh sách sản phẩm
 app.get('/api/products', async (req, res) => {
@@ -35,15 +38,15 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
-// Thêm sản phẩm
-app.post('/api/products', async (req, res) => {
+// Thêm sản phẩm (admin)
+app.post('/api/products', authRequired, requireRole('admin'), async (req, res) => {
   const product = new Product(req.body);
   await product.save();
   res.status(201).json(product);
 });
 
-// Sửa sản phẩm
-app.put('/api/products/:id', async (req, res) => {
+// Sửa sản phẩm (admin)
+app.put('/api/products/:id', authRequired, requireRole('admin'), async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
@@ -53,8 +56,8 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
-// Xóa sản phẩm
-app.delete('/api/products/:id', async (req, res) => {
+// Xóa sản phẩm (admin)
+app.delete('/api/products/:id', authRequired, requireRole('admin'), async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
@@ -75,13 +78,13 @@ app.post('/api/orders', async (req, res) => {
 });
 
 // Lấy danh sách đơn (admin)
-app.get('/api/orders', async (req, res) => {
+app.get('/api/orders', authRequired, requireRole('admin'), async (req, res) => {
   const orders = await Order.find().sort({ createdAt: -1 });
   res.json(orders);
 });
 
 // Cập nhật trạng thái đơn (admin)
-app.put('/api/orders/:id', async (req, res) => {
+app.put('/api/orders/:id', authRequired, requireRole('admin'), async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn' });

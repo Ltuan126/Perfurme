@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 
 
-export default function Navbar({ cartCount, onSearch }) {
+export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, currentUser }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -42,6 +42,11 @@ export default function Navbar({ cartCount, onSearch }) {
         <li>
           <Link to="/contact" className="text-white hover:text-cyan-200 font-medium transition">Contact</Link>
         </li>
+          {isAdmin && (
+            <li>
+              <Link to="/admin/orders" className="text-white hover:text-cyan-200 font-medium transition">Orders</Link>
+            </li>
+          )}
         <li className="relative">
           <Link to="/cart" className="flex items-center gap-1 text-white hover:text-cyan-200 font-medium transition">
             <FiShoppingCart />
@@ -112,6 +117,13 @@ export default function Navbar({ cartCount, onSearch }) {
               Contact
             </Link>
           </li>
+          {isAdmin && (
+            <li>
+              <Link to="/admin/orders" className="text-white hover:text-cyan-200 font-medium text-lg" onClick={() => setIsOpen(false)}>
+                Orders
+              </Link>
+            </li>
+          )}
           <li>
             <Link to="/cart" className="text-white hover:text-cyan-200 font-medium text-lg" onClick={() => setIsOpen(false)}>
               Cart ({cartCount})
@@ -119,6 +131,15 @@ export default function Navbar({ cartCount, onSearch }) {
           </li>
         </ul>
       )}
+          {currentUser && (
+            <div className="flex items-center gap-2 pl-4 border-l border-white/20">
+              <span className="text-sm text-white/80">{currentUser}</span>
+              <button
+                onClick={onLogout}
+                className="text-xs px-2 py-1 bg-white/10 rounded hover:bg-white/20 transition"
+              >Logout</button>
+            </div>
+          )}
     </nav>
   );
 }

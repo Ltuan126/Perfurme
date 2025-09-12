@@ -27,7 +27,7 @@ export default function AdminProductManager() {
       if (editingId) {
         const res = await fetch(`/api/products/${editingId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
           body: JSON.stringify(form),
         });
         const updated = await res.json();
@@ -36,7 +36,7 @@ export default function AdminProductManager() {
       } else {
         const res = await fetch('/api/products', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
           body: JSON.stringify(form),
         });
         const added = await res.json();
@@ -56,7 +56,7 @@ export default function AdminProductManager() {
   const handleDelete = async id => {
     if (!window.confirm('Bạn chắc chắn muốn xóa?')) return;
     try {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
+  await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } });
       setProducts(products.filter(p => p._id !== id));
     } catch {
       setError('Không thể xóa sản phẩm!');
