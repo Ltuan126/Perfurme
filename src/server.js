@@ -20,6 +20,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use('/api/auth', authRoutes);
+const reviewRoutes = require('./routes/review');
+app.use('/api/reviews', reviewRoutes);
+const qaRoutes = require('./routes/qa');
+app.use('/api/qas', qaRoutes);
 
 // Lấy danh sách sản phẩm
 app.get('/api/products', async (req, res) => {
