@@ -26,4 +26,8 @@ function requireRole(role) {
   };
 }
 
-module.exports = { authRequired, requireRole, JWT_SECRET };
+// Aliases to match newly added routes
+const isAuthenticated = authRequired;
+const isAdmin = (req, res, next) => requireRole('admin')(req, res, next);
+
+module.exports = { authRequired, requireRole, isAuthenticated, isAdmin, JWT_SECRET };

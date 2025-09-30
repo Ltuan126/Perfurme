@@ -117,3 +117,7 @@ git push origin main
 Chi tiết lộ trình phát triển nâng cao (kiến trúc, JWT, pagination, stock, testing, deploy) xem tại: [docs/ROADMAP.md](./docs/ROADMAP.md)
 
 Ghi chú: Đã nâng cấp lên JWT. Tham khảo chi tiết roadmap để xem các bước bảo mật tiếp theo (refresh token, CSRF, rate limiting...).
+
+---
+## 🎁 Loyalty & Bundle
+Quy tắc tích điểm (1 điểm mỗi 10.000₫ sau giảm) và ưu đãi combo mini (3 chai mini -10%) xem chi tiết tại: [docs/LOYALTY.md](./docs/LOYALTY.md)

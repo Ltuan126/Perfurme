@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductCard from './ProductCard';
+import { products as localProducts } from '../data/products';
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -17,9 +18,25 @@ export default function ProductList() {
 
   useEffect(() => {
     fetch('/api/products')
-      .then(res => res.json())
-      .then(data => { setProducts(data); setLoading(false); })
-      .catch(() => { setError('Không thể tải sản phẩm!'); setLoading(false); });
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          // Merge local "Mini" items into API list if not already present
+          const minis = localProducts.filter(p => /mini/i.test(p.name || ''));
+          const fetchedNames = new Set(data.map(p => (p?.name || '').toLowerCase()));
+          const minisToAdd = minis.filter(p => !fetchedNames.has((p.name || '').toLowerCase()));
+          setProducts([...data, ...minisToAdd]);
+        } else {
+          setProducts(localProducts);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        // Fallback to local products when API fails
+        setProducts(localProducts);
+        setError('Hiển thị danh sách cục bộ (API không khả dụng).');
+        setLoading(false);
+      });
   }, []);
 
   // IMPORTANT: define all hooks before any early return to keep hook order stable
@@ -46,7 +63,7 @@ export default function ProductList() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filtered.map(product => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard key={product._id || `local-${product.id}`} product={product} />
           ))}
         </div>
       )}

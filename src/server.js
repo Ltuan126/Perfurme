@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('./db');
 const Product = require('./models/Product');
+const User = require('./models/User');
 const authRoutes = require('./routes/auth');
 const { authRequired, requireRole } = require('./middleware/auth');
 const cors = require('cors');
@@ -71,13 +72,68 @@ app.delete('/api/products/:id', authRequired, requireRole('admin'), async (req, 
   }
 });
 
-// Tạo đơn COD
+// Loyalty helpers
+function calcEarnedPoints(amount) {
+  // 1 point per $10 equivalent
+  return Math.floor((amount || 0) / 10);
+}
+
+function nextTier(points) {
+  if (points >= 2000) return 'VIP';
+  if (points >= 1000) return 'Gold';
+  if (points >= 500) return 'Silver';
+  return 'None';
+}
+
+function isMini(productName = '') {
+  // simple check: contains "mini" (case-insensitive)
+  return /mini/i.test(productName);
+}
+
+// Tạo đơn COD (cộng điểm + bundle discount)
 app.post('/api/orders', async (req, res) => {
   try {
-    const order = await Order.create(req.body);
+    const body = req.body || {};
+    const cart = Array.isArray(body.cart) ? body.cart : [];
+    let subtotal = cart.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+
+    // Bundle discount: chọn 3 chai mini -> giảm 10% trên 3 chai mini
+    const miniCount = cart.reduce((n,i)=> n + (isMini(i.name) ? (Number(i.quantity)||1) : 0), 0);
+    let discount = 0;
+    if (miniCount >= 3) {
+      const minisTotal = cart.filter(i=>isMini(i.name)).reduce((s,i)=> s + (Number(i.price)||0) * (Number(i.quantity)||1), 0);
+      discount += Math.round(minisTotal * 0.10 * 100) / 100; // 10%
+    }
+    const total = Math.max(0, subtotal - discount);
+
+    const order = await Order.create({ ...body, cart, subtotal, discount, total });
+
+    // Cộng điểm nếu có user (yêu cầu gửi kèm username trong body demo)
+    if (body.username) {
+      const user = await User.findOne({ username: body.username });
+      if (user) {
+        const earned = calcEarnedPoints(total);
+        const newPoints = (user.points || 0) + earned;
+        const tier = nextTier(newPoints);
+        user.points = newPoints;
+        user.tier = tier;
+        await user.save();
+      }
+    }
     res.status(201).json(order);
   } catch (err) {
     res.status(400).json({ message: 'Không tạo được đơn hàng' });
+  }
+});
+
+// Lấy thông tin tài khoản hiện tại (điểm + tier)
+app.get('/api/me', authRequired, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.sub).select('username role points tier');
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
+    res.json(user);
+  } catch (e) {
+    res.status(500).json({ message: 'Lỗi lấy thông tin người dùng' });
   }
 });
 

@@ -3,6 +3,11 @@ export const products = [
     id: 1,
     name: "Another 13",
     price: 279.99,
+    sizes: [
+      { label: '100ml', price: 279.99 },
+      { label: '50ml', price: 172.73 },
+      { label: '15ml', price: 74.38 },
+    ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PA13100__PRODUCT_01--IMG_1200--ANOTHER13-247547490.jpg",
     description: "A timeless scent with floral top notes.",
@@ -11,6 +16,11 @@ export const products = [
     id: 2,
     name: "Bergamote 22",
     price: 259.99,
+    sizes: [
+      { label: '100ml', price: 259.99 },
+      { label: '50ml', price: 172.73 },
+      { label: '15ml', price: 74.38 },
+    ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PB22100__PRODUCT_01--IMG_1200--BERGAMOTE22--1562685279.jpg",
     description: "Fresh citrus aroma for everyday wear.",
@@ -19,6 +29,11 @@ export const products = [
     id: 3,
     name: "Baie 19",
     price: 243.80,
+    sizes: [
+      { label: '100ml', price: 243.80 },
+      { label: '50ml', price: 172.73 },
+      { label: '15ml', price: 74.38 },
+    ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/J2K401R000__PRODUCT_01--IMG_1200--BAIE19-1695466996.jpg",
     description:
@@ -28,6 +43,11 @@ export const products = [
     id: 4,
     name: "Rose 31",
     price: 243.80,
+    sizes: [
+      { label: '100ml', price: 243.80 },
+      { label: '50ml', price: 172.73 },
+      { label: '15ml', price: 74.38 },
+    ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PR31100__PRODUCT_01--IMG_1200--ROSE31--2101804434.jpg",
     description:
@@ -37,6 +57,11 @@ export const products = [
     id: 5,
     name: "THÉ NOIR 29",
     price: 243.80,
+    sizes: [
+      { label: '100ml', price: 243.80 },
+      { label: '50ml', price: 172.73 },
+      { label: '15ml', price: 74.38 },
+    ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PT29100__PRODUCT_01--IMG_1200--THNOIR29--1804794449.jpg",
     description:
@@ -46,6 +71,11 @@ export const products = [
     id: 6,
     name: "NEROLI 36",
     price: 243.80,
+    sizes: [
+      { label: '100ml', price: 243.80 },
+      { label: '50ml', price: 172.73 },
+      { label: '15ml', price: 74.38 },
+    ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PN36100__PRODUCT_01--IMG_1200--NEROLI36-678633412.jpg",
     description:
