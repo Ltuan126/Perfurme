@@ -12,8 +12,9 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
     const qty = (x) => Number(x?.quantity) || 1;
     const price = (x) => Number(x?.price) || 0;
     const subtotal = items.reduce((s,i)=> s + price(i)*qty(i), 0);
-    const miniCount = items.reduce((n,i)=> n + (/mini/i.test(i?.name||'') ? qty(i) : 0), 0);
-    const minisTotal = items.filter(i=>/mini/i.test(i?.name||'')).reduce((s,i)=> s + price(i)*qty(i), 0);
+    // Combo 3 chai 15ml -10%
+    const miniCount = items.reduce((n,i)=> n + (i?.sizeLabel === '15ml' ? qty(i) : 0), 0);
+    const minisTotal = items.filter(i=>i?.sizeLabel === '15ml').reduce((s,i)=> s + price(i)*qty(i), 0);
     const discount = miniCount >= 3 ? Math.round(minisTotal * 0.10 * 100)/100 : 0;
     const total = Math.max(0, subtotal - discount);
     // Convert to points with default USD->VND exchange for estimate
@@ -62,7 +63,7 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
       <h2 className="text-lg font-semibold text-blue-700 mb-3 text-center">Thông tin nhận hàng (COD)</h2>
       <div className="mb-3 text-sm text-slate-700 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
         <div className="flex justify-between"><span>Tạm tính</span><span className="font-semibold">${summary.subtotal.toFixed(2)}</span></div>
-        <div className="flex justify-between"><span>Giảm combo mini{summary.miniCount>=3? '' : ' (chọn đủ 3 chai mini để nhận -10%)'}</span><span className="font-semibold text-green-600">-${summary.discount.toFixed(2)}</span></div>
+  <div className="flex justify-between"><span>Giảm combo 15ml{summary.miniCount>=3? '' : ' (chọn đủ 3 chai 15ml để nhận -10%)'}</span><span className="font-semibold text-green-600">-${summary.discount.toFixed(2)}</span></div>
         <div className="flex justify-between text-blue-700 font-bold mt-1"><span>Thành tiền</span><span>${summary.total.toFixed(2)}</span></div>
         <div className="text-xs text-slate-500 mt-1">Ước tính nhận <span className="font-semibold text-slate-700">{summary.estPoints}</span> điểm (1 điểm mỗi 10.000₫, quy đổi từ USD).</div>
       </div>

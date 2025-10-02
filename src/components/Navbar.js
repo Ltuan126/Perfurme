@@ -95,6 +95,9 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
           <Link to="/products" className="text-white hover:text-cyan-200 font-medium transition">Products</Link>
         </li>
         <li>
+          <Link to="/quiz" className="text-white hover:text-cyan-200 font-medium transition">Quiz</Link>
+        </li>
+        <li>
           <Link to="/about" className="text-white hover:text-cyan-200 font-medium transition">About</Link>
         </li>
         <li>

@@ -11,6 +11,7 @@ import ProductDetail from './components/ProductDetail';
 import Cart from './components/Cart';
 import About from './components/About';
 import Contact from './components/Contact';
+import Quiz from './components/Quiz';
 
 
 export default function App() {
@@ -106,6 +107,7 @@ export default function App() {
           <Route path="/products" element={<ProductList />} />
           <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} />} />
           <Route path="/cart" element={<Cart items={cartItems} onQtyChange={updateCartQty} onRemove={removeFromCart} />} />
+          <Route path="/quiz" element={<Quiz />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <AdminLogin onLogin={() => setIsAdmin(true)} />} />
