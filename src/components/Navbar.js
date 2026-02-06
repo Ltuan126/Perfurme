@@ -17,14 +17,14 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
     const parts = name.trim().split(/\s+/);
     const first = parts[0]?.[0] || "";
     const last = parts[1]?.[0] || "";
-    return (first + last).toUpperCase() || name.slice(0,2).toUpperCase();
+    return (first + last).toUpperCase() || name.slice(0, 2).toUpperCase();
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-  if (onSearch) onSearch(query);
-  const q = query.trim();
-  navigate(q ? `/products?search=${encodeURIComponent(q)}` : "/products");
+    if (onSearch) onSearch(query);
+    const q = query.trim();
+    navigate(q ? `/products?search=${encodeURIComponent(q)}` : "/products");
   };
 
   // Close user menu on outside click or Escape key
@@ -62,14 +62,14 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
             const { loadUserLoyalty } = require('../utils/loyalty');
             const l = loadUserLoyalty(currentUser);
             setLoyalty(l);
-          } catch {}
+          } catch { }
         });
     } else {
       try {
         const { loadUserLoyalty } = require('../utils/loyalty');
         const l = loadUserLoyalty(currentUser);
         setLoyalty(l);
-      } catch {}
+      } catch { }
     }
   }, [currentUser]);
 
@@ -88,37 +88,42 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
         </button>
 
         <ul className="hidden md:flex space-x-6 items-center">
-        <li>
-          <Link to="/" className="text-white hover:text-cyan-200 font-medium transition">Home</Link>
-        </li>
-        <li>
-          <Link to="/products" className="text-white hover:text-cyan-200 font-medium transition">Products</Link>
-        </li>
-        <li>
-          <Link to="/quiz" className="text-white hover:text-cyan-200 font-medium transition">Quiz</Link>
-        </li>
-        <li>
-          <Link to="/about" className="text-white hover:text-cyan-200 font-medium transition">About</Link>
-        </li>
-        <li>
-          <Link to="/contact" className="text-white hover:text-cyan-200 font-medium transition">Contact</Link>
-        </li>
+          <li>
+            <Link to="/" className="text-white hover:text-cyan-200 font-medium transition">Home</Link>
+          </li>
+          <li>
+            <Link to="/products" className="text-white hover:text-cyan-200 font-medium transition">Products</Link>
+          </li>
+          <li>
+            <Link to="/quiz" className="text-white hover:text-cyan-200 font-medium transition">Quiz</Link>
+          </li>
+          <li>
+            <Link to="/about" className="text-white hover:text-cyan-200 font-medium transition">About</Link>
+          </li>
+          <li>
+            <Link to="/contact" className="text-white hover:text-cyan-200 font-medium transition">Contact</Link>
+          </li>
           {isAdmin && (
-            <li>
-              <Link to="/admin/orders" className="text-white hover:text-cyan-200 font-medium transition">Orders</Link>
-            </li>
+            <>
+              <li>
+                <Link to="/admin" className="text-white hover:text-cyan-200 font-medium transition">Manage Products</Link>
+              </li>
+              <li>
+                <Link to="/admin/orders" className="text-white hover:text-cyan-200 font-medium transition">Orders</Link>
+              </li>
+            </>
           )}
-        <li className="relative">
-          <Link to="/cart" className="flex items-center gap-1 text-white hover:text-cyan-200 font-medium transition">
-            <FiShoppingCart />
-            Cart
-            {cartCount > 0 && (
-              <span className="ml-1 bg-white text-blue-600 rounded-full px-2 py-0.5 text-xs font-bold shadow">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-        </li>
+          <li className="relative">
+            <Link to="/cart" className="flex items-center gap-1 text-white hover:text-cyan-200 font-medium transition">
+              <FiShoppingCart />
+              Cart
+              {cartCount > 0 && (
+                <span className="ml-1 bg-white text-blue-600 rounded-full px-2 py-0.5 text-xs font-bold shadow">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </li>
         </ul>
 
         {/* Search bar */}
@@ -196,11 +201,18 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
                       </button>
                     </li>
                     {isAdmin && (
-                      <li>
-                        <Link to="/admin/orders" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 text-sm">
-                          Orders admin
-                        </Link>
-                      </li>
+                      <>
+                        <li>
+                          <Link to="/admin" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 text-sm">
+                            Manage Products
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/admin/orders" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 text-sm">
+                            Orders admin
+                          </Link>
+                        </li>
+                      </>
                     )}
                     <li>
                       <button onClick={onLogout} className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-red-50 text-sm text-red-600">
@@ -241,11 +253,18 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
             </Link>
           </li>
           {isAdmin && (
-            <li>
-              <Link to="/admin/orders" className="text-white hover:text-cyan-200 font-medium text-lg" onClick={() => setIsOpen(false)}>
-                Orders
-              </Link>
-            </li>
+            <>
+              <li>
+                <Link to="/admin" className="text-white hover:text-cyan-200 font-medium text-lg" onClick={() => setIsOpen(false)}>
+                  Manage Products
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/orders" className="text-white hover:text-cyan-200 font-medium text-lg" onClick={() => setIsOpen(false)}>
+                  Orders
+                </Link>
+              </li>
+            </>
           )}
           <li>
             <Link to="/cart" className="text-white hover:text-cyan-200 font-medium text-lg" onClick={() => setIsOpen(false)}>
