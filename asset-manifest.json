@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Perfurme/static/css/main.936cd7b9.css",
-    "main.js": "/Perfurme/static/js/main.68b9047a.js",
+    "main.css": "/Perfurme/static/css/main.f3cde0b4.css",
+    "main.js": "/Perfurme/static/js/main.defc43ec.js",
     "index.html": "/Perfurme/index.html",
-    "main.936cd7b9.css.map": "/Perfurme/static/css/main.936cd7b9.css.map",
-    "main.68b9047a.js.map": "/Perfurme/static/js/main.68b9047a.js.map"
+    "main.f3cde0b4.css.map": "/Perfurme/static/css/main.f3cde0b4.css.map",
+    "main.defc43ec.js.map": "/Perfurme/static/js/main.defc43ec.js.map"
   },
   "entrypoints": [
-    "static/css/main.936cd7b9.css",
-    "static/js/main.68b9047a.js"
+    "static/css/main.f3cde0b4.css",
+    "static/js/main.defc43ec.js"
   ]
 }
