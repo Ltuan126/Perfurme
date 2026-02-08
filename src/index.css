@@ -30,12 +30,13 @@ body {
 
 .title {
   @apply text-4xl md:text-5xl font-extrabold mb-10 text-center;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 60%, #1e40af 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  text-shadow: 0 8px 24px rgba(37, 99, 235, 0.28);
 }
 
 .glass {
@@ -91,7 +92,7 @@ body {
 
 .product-card:hover {
   transform: translateY(-8px) scale(1.02);
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .product-img {
@@ -109,17 +110,17 @@ body {
 }
 
 .product-price {
-  @apply text-indigo-600 font-semibold text-lg mb-4;
+  @apply text-blue-600 font-semibold text-lg mb-4;
 }
 
 .product-btn {
   @apply mt-auto px-6 py-2.5 text-white rounded-xl font-semibold shadow-lg transition-all duration-300;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .product-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -8px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 12px 28px -8px rgba(59, 130, 246, 0.5);
 }
 
 /* Product Detail - Enhanced */
