@@ -75,19 +75,19 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
 
   return (
     <nav className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-700/95 shadow-md border-b border-white/20 relative z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between relative" style={{ minHeight: 64 }}>
-        <h1 className="text-2xl font-bold text-white tracking-tight">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between relative" style={{ minHeight: 72 }}>
+        <h1 className="text-3xl font-bold text-white tracking-tight">
           Perfume Shop
         </h1>
 
         <button
-          className="md:hidden text-white text-2xl focus:outline-none"
+          className="md:hidden text-white text-3xl focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <FiX /> : <FiMenu />}
         </button>
 
-        <ul className="hidden md:flex space-x-6 items-center">
+        <ul className="hidden md:flex space-x-6 items-center text-base">
           <li>
             <Link to="/" className="text-white hover:text-cyan-200 font-medium transition">Home</Link>
           </li>
@@ -129,12 +129,12 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
         {/* Search bar */}
         <form
           onSubmit={handleSearch}
-          className="hidden md:flex items-center bg-white/85 border border-cyan-200 rounded-full px-4 py-1 shadow focus-within:ring-2 focus-within:ring-cyan-400 ml-4"
+          className="hidden md:flex items-center bg-white/85 border border-cyan-200 rounded-full px-4 py-2 shadow focus-within:ring-2 focus-within:ring-cyan-400 ml-4"
         >
           <input
             type="text"
             placeholder="Search perfumes..."
-            className="outline-none w-48 md:w-64 text-sm text-blue-700 placeholder-blue-400 bg-transparent"
+            className="outline-none w-52 md:w-72 text-base text-blue-700 placeholder-blue-400 bg-transparent"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
