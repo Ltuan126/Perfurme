@@ -1,5 +1,6 @@
 // src/components/About.js
 import React from 'react';
+import ltuanImg from '../assets/img/Ltuan.jpg';
 
 export default function About() {
   return (
@@ -12,7 +13,14 @@ export default function About() {
             <p className="mt-4 text-white/90 text-lg">Thực hiện bởi <span className="font-semibold">Lê Tuấn</span>. Dự án cá nhân tập trung vào trải nghiệm mua sắm nước hoa hiện đại.</p>
           </div>
           <div className="hidden md:block">
-            <div className="aspect-[4/3] rounded-3xl shadow-2xl border border-white/20 bg-white/20 backdrop-blur" />
+            <div className="relative group">
+              <img
+                src={ltuanImg}
+                alt="Lê Tuấn"
+                className="w-full aspect-[4/3] object-cover rounded-3xl shadow-2xl border border-white/20 transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-blue-900/30 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+            </div>
           </div>
         </div>
       </section>
@@ -44,7 +52,7 @@ export default function About() {
         <div className="glass p-8">
           <h3 className="text-2xl font-bold text-blue-700 mb-4">Tech stack</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-            {['React','React Router','Tailwind CSS','Node.js','Express','MongoDB','Mongoose'].map((t) => (
+            {['React', 'React Router', 'Tailwind CSS', 'Node.js', 'Express', 'MongoDB', 'Mongoose'].map((t) => (
               <div key={t} className="px-3 py-2 rounded-full bg-slate-100 text-slate-700 text-center border border-slate-200">{t}</div>
             ))}
           </div>
