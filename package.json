@@ -10,6 +10,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
@@ -24,8 +25,9 @@
     "build": "set \"NODE_OPTIONS=--openssl-legacy-provider\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "server": "node src/server.js",
     "seed:minis": "node scripts/seedMinis.js",
-  "seed:sizes": "node scripts/addSizes.js",
+    "seed:sizes": "node scripts/addSizes.js",
     "tailwind-build": "npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
