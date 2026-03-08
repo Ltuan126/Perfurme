@@ -1,6 +1,7 @@
 {
   "name": "perfumejs",
   "version": "1.0.0",
+  "homepage": "https://ltuan126.github.io/Perfurme",
   "private": true,
   "main": "postcss.config.js",
   "description": "",

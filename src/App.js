@@ -40,7 +40,7 @@ export default function App() {
   };
 
   // Keep a no-op search handler for Navbar compatibility; navigation is handled there
-  const handleSearch = () => {};
+  const handleSearch = () => { };
 
   // Helper to build a unique cart key including size label
   const keyOf = (p) => {
@@ -52,7 +52,7 @@ export default function App() {
 
   // Persist cart to localStorage
   useEffect(() => {
-    try { localStorage.setItem('cart_items', JSON.stringify(cartItems)); } catch {}
+    try { localStorage.setItem('cart_items', JSON.stringify(cartItems)); } catch { }
   }, [cartItems]);
 
   // Derived total quantity for Navbar badge
@@ -99,8 +99,8 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-  <Navbar cartCount={cartCount} onSearch={handleSearch} isAdmin={isAdmin} onLogout={handleLogout} currentUser={user} />
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
+      <Navbar cartCount={cartCount} onSearch={handleSearch} isAdmin={isAdmin} onLogout={handleLogout} currentUser={user} />
       <div className="main-container">
         <Routes>
           <Route path="/" element={<Home />} />
