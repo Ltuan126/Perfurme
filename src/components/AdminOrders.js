@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import API_BASE_URL from '../config/api';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -8,7 +9,7 @@ const STATUS_COLORS = {
   canceled: 'bg-red-100 text-red-600',
 };
 
-const STATUS_FLOW = ['pending','confirmed','shipped','completed'];
+const STATUS_FLOW = ['pending', 'confirmed', 'shipped', 'completed'];
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -19,7 +20,7 @@ export default function AdminOrders() {
   const [editStatus, setEditStatus] = useState({});
 
   useEffect(() => {
-    fetch('/api/orders', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } })
+    fetch(`${API_BASE_URL}/api/orders`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } })
       .then(res => res.json())
       .then(data => { setOrders(data); setLoading(false); })
       .catch(() => { setError('Không thể tải đơn hàng!'); setLoading(false); });
@@ -39,7 +40,7 @@ export default function AdminOrders() {
     if (!newStatus || newStatus === order.status) return;
     setUpdatingId(order._id);
     try {
-      const res = await fetch(`/api/orders/${order._id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${order._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
         body: JSON.stringify({ status: newStatus })
@@ -57,7 +58,7 @@ export default function AdminOrders() {
     // allow moving forward plus canceled option
     const idx = STATUS_FLOW.indexOf(current);
     const forward = idx === -1 ? [] : STATUS_FLOW.slice(idx + 1);
-    return [current, ...forward, 'canceled'].filter((v,i,self) => self.indexOf(v)===i);
+    return [current, ...forward, 'canceled'].filter((v, i, self) => self.indexOf(v) === i);
   };
 
   return (
@@ -65,8 +66,8 @@ export default function AdminOrders() {
       <h1 className="text-3xl font-bold text-blue-700 mb-6">Quản lý đơn hàng</h1>
       <div className="glass p-4 mb-6 flex flex-col md:flex-row gap-4 md:items-center justify-between">
         <div className="flex gap-3 flex-wrap">
-          {['all','pending','confirmed','shipped','completed','canceled'].map(s => (
-            <button key={s} onClick={() => setFilter(s)} className={`px-4 py-2 rounded-full text-sm font-medium border transition ${filter===s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white/60 hover:bg-white border-slate-300 text-slate-700'}`}>
+          {['all', 'pending', 'confirmed', 'shipped', 'completed', 'canceled'].map(s => (
+            <button key={s} onClick={() => setFilter(s)} className={`px-4 py-2 rounded-full text-sm font-medium border transition ${filter === s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white/60 hover:bg-white border-slate-300 text-slate-700'}`}>
               {s === 'all' ? 'Tất cả' : s}
             </button>
           ))}
@@ -93,7 +94,7 @@ export default function AdminOrders() {
             </thead>
             <tbody>
               {filtered.map(order => {
-                const itemsTotal = order.cart?.reduce((sum,i)=> sum + (i.price||0) * (i.quantity||1), 0) || 0;
+                const itemsTotal = order.cart?.reduce((sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0) || 0;
                 return (
                   <tr key={order._id} className="border-t hover:bg-blue-50/60 transition">
                     <td className="p-3 align-top min-w-[140px]">
@@ -105,10 +106,10 @@ export default function AdminOrders() {
                     <td className="p-3 align-top max-w-[200px] break-words">{order.address}</td>
                     <td className="p-3 align-top">
                       <ul className="space-y-1">
-                        {order.cart?.map((c,idx) => (
+                        {order.cart?.map((c, idx) => (
                           <li key={idx} className="flex justify-between gap-3">
                             <span className="text-slate-700 truncate max-w-[140px]" title={c.name}>{c.name}</span>
-                            <span className="text-slate-500 text-xs">x{c.quantity||1}</span>
+                            <span className="text-slate-500 text-xs">x{c.quantity || 1}</span>
                           </li>
                         ))}
                       </ul>
@@ -118,7 +119,7 @@ export default function AdminOrders() {
                       <div className="mt-2">
                         <select
                           value={editStatus[order._id] || order.status}
-                          onChange={(e)=>handleStatusChange(order._id, e.target.value)}
+                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
                           className="text-xs border rounded-full px-2 py-1 bg-white focus:ring-2 focus:ring-blue-300"
                         >
                           {nextStatuses(order.status).map(s => <option key={s} value={s}>{s}</option>)}
@@ -127,11 +128,11 @@ export default function AdminOrders() {
                     </td>
                     <td className="p-3 align-top">
                       <button
-                        disabled={updatingId===order._id || (editStatus[order._id]||order.status)===order.status}
-                        onClick={()=>applyUpdate(order)}
+                        disabled={updatingId === order._id || (editStatus[order._id] || order.status) === order.status}
+                        onClick={() => applyUpdate(order)}
                         className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cyan-600 transition"
                       >
-                        {updatingId===order._id? 'Đang lưu...' : 'Cập nhật'}
+                        {updatingId === order._id ? 'Đang lưu...' : 'Cập nhật'}
                       </button>
                     </td>
                   </tr>

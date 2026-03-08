@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
+import API_BASE_URL from '../config/api';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -8,7 +9,7 @@ export default function Home() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => { setProducts(data); setLoading(false); })
       .catch(() => { setError('Không thể tải sản phẩm nổi bật!'); setLoading(false); });

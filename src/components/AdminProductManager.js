@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus, FaSave, FaTimes } from 'react-icons/fa';
+import API_BASE_URL from '../config/api';
 
 export default function AdminProductManager() {
   const [products, setProducts] = useState([]);
@@ -9,7 +10,7 @@ export default function AdminProductManager() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(setProducts)
       .catch(() => setError('Không thể tải sản phẩm!'));
@@ -25,7 +26,7 @@ export default function AdminProductManager() {
     setError('');
     try {
       if (editingId) {
-        const res = await fetch(`/api/products/${editingId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/products/${editingId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
           body: JSON.stringify(form),
@@ -34,7 +35,7 @@ export default function AdminProductManager() {
         setProducts(products.map(p => (p._id === editingId ? updated : p)));
         setEditingId(null);
       } else {
-        const res = await fetch('/api/products', {
+        const res = await fetch(`${API_BASE_URL}/api/products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
           body: JSON.stringify(form),
@@ -56,7 +57,7 @@ export default function AdminProductManager() {
   const handleDelete = async id => {
     if (!window.confirm('Bạn chắc chắn muốn xóa?')) return;
     try {
-  await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } });
+      await fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } });
       setProducts(products.filter(p => p._id !== id));
     } catch {
       setError('Không thể xóa sản phẩm!');
@@ -65,16 +66,16 @@ export default function AdminProductManager() {
 
   return (
     <div className="admin-product-manager max-w-3xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg border border-gray-100 animate-fade-in">
-  <h2 className="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
-  <FaPlus className="text-blue-400" /> Quản lý sản phẩm
+      <h2 className="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+        <FaPlus className="text-blue-400" /> Quản lý sản phẩm
       </h2>
-  <form onSubmit={handleSubmit} className="mb-8 p-4 bg-blue-50 rounded-2xl shadow flex flex-col gap-3">
+      <form onSubmit={handleSubmit} className="mb-8 p-4 bg-blue-50 rounded-2xl shadow flex flex-col gap-3">
         <div className="flex gap-3">
           <input name="name" value={form.name} onChange={handleChange} placeholder="Tên sản phẩm" className="flex-1 px-3 py-2 border rounded-full focus:ring-2 focus:ring-blue-300 outline-none" />
           <input name="price" value={form.price} onChange={handleChange} placeholder="Giá" type="number" className="w-32 px-3 py-2 border rounded-full focus:ring-2 focus:ring-blue-300 outline-none" />
         </div>
-  <input name="image" value={form.image} onChange={handleChange} placeholder="Link ảnh" className="px-3 py-2 border rounded-full focus:ring-2 focus:ring-blue-300 outline-none" />
-  <textarea name="description" value={form.description} onChange={handleChange} placeholder="Mô tả" className="px-3 py-2 border rounded-2xl focus:ring-2 focus:ring-blue-300 outline-none resize-none" />
+        <input name="image" value={form.image} onChange={handleChange} placeholder="Link ảnh" className="px-3 py-2 border rounded-full focus:ring-2 focus:ring-blue-300 outline-none" />
+        <textarea name="description" value={form.description} onChange={handleChange} placeholder="Mô tả" className="px-3 py-2 border rounded-2xl focus:ring-2 focus:ring-blue-300 outline-none resize-none" />
         {error && <div className="text-red-500 mb-2">{error}</div>}
         <div className="flex gap-2">
           <button type="submit" className="flex items-center gap-2 bg-blue-500 hover:bg-cyan-500 text-white px-4 py-2 rounded-full shadow transition">
@@ -88,7 +89,7 @@ export default function AdminProductManager() {
         </div>
       </form>
       <div className="overflow-x-auto">
-  <table className="w-full border rounded-2xl overflow-hidden shadow">
+        <table className="w-full border rounded-2xl overflow-hidden shadow">
           <thead>
             <tr className="bg-blue-100 text-blue-700">
               <th className="p-3 border">Tên</th>

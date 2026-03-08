@@ -1,13 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.ae1d6dbf.css",
-    "main.js": "/static/js/main.e4de89fa.js",
+    "main.css": "/static/css/main.495a3582.css",
+    "main.js": "/static/js/main.d33ebeb7.js",
+    "static/media/Ltuan.jpg": "/static/media/Ltuan.8744b3e35ae120f7d90e.jpg",
     "index.html": "/index.html",
-    "main.ae1d6dbf.css.map": "/static/css/main.ae1d6dbf.css.map",
-    "main.e4de89fa.js.map": "/static/js/main.e4de89fa.js.map"
+    "main.495a3582.css.map": "/static/css/main.495a3582.css.map",
+    "main.d33ebeb7.js.map": "/static/js/main.d33ebeb7.js.map"
   },
   "entrypoints": [
-    "static/css/main.ae1d6dbf.css",
-    "static/js/main.e4de89fa.js"
+    "static/css/main.495a3582.css",
+    "static/js/main.d33ebeb7.js"
   ]
 }

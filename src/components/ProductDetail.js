@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
+import API_BASE_URL from '../config/api';
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -19,7 +20,7 @@ export default function ProductDetail({ addToCart }) {
 
   useEffect(() => {
     // Try API first
-    fetch(`/api/products/${id}`)
+    fetch(`${API_BASE_URL}/api/products/${id}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && data._id) {
@@ -48,7 +49,7 @@ export default function ProductDetail({ addToCart }) {
   useEffect(() => {
     // Only attempt reviews when viewing a backend product (has string _id)
     if (product && product._id) {
-      fetch(`/api/reviews/${product._id}?page=${page}&limit=${limit}`)
+      fetch(`${API_BASE_URL}/api/reviews/${product._id}?page=${page}&limit=${limit}`)
         .then(res => res.ok ? res.json() : { reviews: [], total: 0 })
         .then(data => {
           setReviews(Array.isArray(data.reviews) ? data.reviews : []);
@@ -155,7 +156,7 @@ function QASection({ productId }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/qas/${productId}?page=${page}&limit=${limit}`)
+    fetch(`${API_BASE_URL}/api/qas/${productId}?page=${page}&limit=${limit}`)
       .then(res => res.json())
       .then(data => {
         setQAs(data.qas);
@@ -168,7 +169,7 @@ function QASection({ productId }) {
     e.preventDefault();
     if (!question.trim()) return;
     // Gửi câu hỏi, cần đăng nhập
-    await fetch('/api/qas', {
+    await fetch(`${API_BASE_URL}/api/qas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, question })
@@ -176,7 +177,7 @@ function QASection({ productId }) {
     setQuestion("");
     setPage(1);
     // Reload Q&A
-    fetch(`/api/qas/${productId}?page=1&limit=${limit}`)
+    fetch(`${API_BASE_URL}/api/qas/${productId}?page=1&limit=${limit}`)
       .then(res => res.json())
       .then(data => {
         setQAs(data.qas);

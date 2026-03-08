@@ -6,6 +6,7 @@ import ProductCard from './ProductCard';
 import { products as localProducts } from '../data/products';
 import { loadQuizAnswers } from '../utils/quiz';
 import { productMeta } from '../data/productMeta';
+import API_BASE_URL from '../config/api';
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -19,7 +20,7 @@ export default function ProductList() {
   }, [location.search]);
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
@@ -66,7 +67,7 @@ export default function ProductList() {
             if (answers.moods?.length) s += (answers.moods.filter(x => m?.moods?.includes(x)).length || 0) * 2;
             return { p, s };
           })
-          .sort((a,b)=> b.s - a.s)
+          .sort((a, b) => b.s - a.s)
           .map(x => x.p);
       }
       // reset flag after applying once

@@ -1,6 +1,7 @@
 
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 import React, { useState, useMemo } from 'react';
+import API_BASE_URL from '../config/api';
 
 export default function UserAuth({ onLogin }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -24,11 +25,11 @@ export default function UserAuth({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-  if (!username || !password) return setError('Vui lòng nhập đầy đủ thông tin!');
-  if (isRegister && password !== confirm) return setError('Mật khẩu xác nhận không khớp');
+    if (!username || !password) return setError('Vui lòng nhập đầy đủ thông tin!');
+    if (isRegister && password !== confirm) return setError('Mật khẩu xác nhận không khớp');
     try {
       if (isRegister) {
-        const res = await fetch('/api/auth/register', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
@@ -41,7 +42,7 @@ export default function UserAuth({ onLogin }) {
         localStorage.setItem('user_role', data.user.role);
         onLogin(data.user.username);
       } else {
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
@@ -128,7 +129,7 @@ export default function UserAuth({ onLogin }) {
                     onChange={e => setPassword(e.target.value)}
                     className="pl-10 pr-20 py-2.5 w-full rounded-xl focus:ring-2 focus:ring-cyan-400/60 outline-none transition bg-white/95 text-slate-800 placeholder-slate-400 shadow-inner"
                   />
-                  <button type="button" onClick={() => setShowPass(s=>!s)} className="absolute right-3 top-2.5 text-[10px] px-2 py-1 rounded-full bg-slate-900/70 text-cyan-200 hover:bg-slate-800 transition">
+                  <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-2.5 text-[10px] px-2 py-1 rounded-full bg-slate-900/70 text-cyan-200 hover:bg-slate-800 transition">
                     {showPass ? 'Ẩn' : 'Hiện'}
                   </button>
                 </div>
@@ -152,7 +153,7 @@ export default function UserAuth({ onLogin }) {
                     <span className="text-cyan-300/80 font-semibold">{strength}/5</span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-800/70 rounded-full overflow-hidden flex">
-                    {Array.from({ length: 5 }).map((_,i)=>(
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <div key={i} className={`flex-1 mx-[1px] rounded ${i < strength ? 'bg-gradient-to-r from-cyan-400 to-blue-500' : 'bg-slate-600/50'}`}></div>
                     ))}
                   </div>

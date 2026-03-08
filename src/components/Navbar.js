@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiShoppingCart, FiUser, FiLogOut, FiChevronDown } from "react-icons/fi";
+import API_BASE_URL from '../config/api';
 
 
 export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, currentUser }) {
@@ -54,7 +55,7 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
     const token = localStorage.getItem('auth_token');
     if (!currentUser) return;
     if (token) {
-      fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } })
+      fetch(`${API_BASE_URL}/api/me`, { headers: { Authorization: 'Bearer ' + token } })
         .then(r => r.ok ? r.json() : null)
         .then(data => { if (data) setLoyalty({ points: data.points || 0, tier: data.tier || 'None' }); })
         .catch(() => {
