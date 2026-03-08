@@ -14,7 +14,7 @@ export default function Home() {
       .catch(() => { setError('Không thể tải sản phẩm nổi bật!'); setLoading(false); });
   }, []);
 
-  const featured = products.slice(0, 4);
+  const featured = (products && Array.isArray(products)) ? products.slice(0, 4) : [];
 
   return (
     <div>
