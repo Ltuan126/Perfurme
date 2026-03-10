@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AdminLogin from './components/AdminLogin';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AdminProductManager from './components/AdminProductManager';
 import AdminOrders from './components/AdminOrders';
 import UserAuth from './components/UserAuth';
@@ -110,8 +109,8 @@ export default function App() {
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <AdminLogin onLogin={() => setIsAdmin(true)} />} />
-          <Route path="/admin/orders" element={isAdmin ? <AdminOrders /> : <AdminLogin onLogin={() => setIsAdmin(true)} />} />
+          <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <Navigate to="/" />} />
+          <Route path="/admin/orders" element={isAdmin ? <AdminOrders /> : <Navigate to="/" />} />
         </Routes>
       </div>
     </BrowserRouter>
