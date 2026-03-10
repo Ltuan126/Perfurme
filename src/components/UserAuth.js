@@ -81,7 +81,7 @@ export default function UserAuth({ onLogin }) {
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur hover:bg-white/10 transition">
               <div className="font-semibold mb-1 text-cyan-200">Đặt hàng nhanh</div>
-              <div className="text-white/60 text-xs">Giỏ hàng & COD đơn giản.</div>
+              <div className="text-white/60 text-xs">Hỗ trợ nhiều phương thức thanh toán</div>
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur hover:bg-white/10 transition">
               <div className="font-semibold mb-1 text-cyan-200">Giao diện mượt</div>
@@ -92,7 +92,6 @@ export default function UserAuth({ onLogin }) {
               <div className="text-white/60 text-xs">Phiên đăng nhập ngắn hạn an toàn.</div>
             </div>
           </div>
-          <p className="text-[11px] uppercase tracking-wider text-white/50">* Đừng dùng mật khẩu thật cho bản demo.</p>
         </div>
         {/* Auth Card */}
         <div className="relative group w-full max-w-sm mx-auto rounded-3xl p-[1px] bg-gradient-to-br from-cyan-400/50 via-blue-500/30 to-indigo-600/40 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
