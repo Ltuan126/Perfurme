@@ -38,8 +38,6 @@ export default function App() {
     setIsAdmin(false);
   };
 
-  // Keep a no-op search handler for Navbar compatibility; navigation is handled there
-  const handleSearch = () => { };
 
   // Helper to build a unique cart key including size label
   const keyOf = (p) => {
@@ -99,7 +97,7 @@ export default function App() {
 
   return (
     <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <Navbar cartCount={cartCount} onSearch={handleSearch} isAdmin={isAdmin} onLogout={handleLogout} currentUser={user} />
+      <Navbar cartCount={cartCount} isAdmin={isAdmin} onLogout={handleLogout} currentUser={user} />
       <div className="main-container">
         <Routes>
           <Route path="/" element={<Home />} />

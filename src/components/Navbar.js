@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiShoppingCart, FiUser, FiLogOut, FiChevronDown } from "react-icons/fi";
 import API_BASE_URL from '../config/api';
+import { loadUserLoyalty } from '../utils/loyalty';
 
 
-export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, currentUser }) {
+export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (onSearch) onSearch(query);
     const q = query.trim();
     navigate(q ? `/products?search=${encodeURIComponent(q)}` : "/products");
   };
@@ -59,18 +59,12 @@ export default function Navbar({ cartCount, onSearch, isAdmin, onLogout, current
         .then(r => r.ok ? r.json() : null)
         .then(data => { if (data) setLoyalty({ points: data.points || 0, tier: data.tier || 'None' }); })
         .catch(() => {
-          try {
-            const { loadUserLoyalty } = require('../utils/loyalty');
-            const l = loadUserLoyalty(currentUser);
-            setLoyalty(l);
-          } catch { }
+          const l = loadUserLoyalty(currentUser);
+          setLoyalty(l);
         });
     } else {
-      try {
-        const { loadUserLoyalty } = require('../utils/loyalty');
-        const l = loadUserLoyalty(currentUser);
-        setLoyalty(l);
-      } catch { }
+      const l = loadUserLoyalty(currentUser);
+      setLoyalty(l);
     }
   }, [currentUser]);
 

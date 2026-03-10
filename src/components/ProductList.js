@@ -1,7 +1,7 @@
 
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { products as localProducts } from '../data/products';
 import { loadQuizAnswers } from '../utils/quiz';
@@ -12,7 +12,9 @@ export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [applyQuiz, setApplyQuiz] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const searchQuery = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -53,8 +55,8 @@ export default function ProductList() {
         return name.includes(searchQuery) || desc.includes(searchQuery);
       });
     }
-    // optional quiz filter preview (activated via CTA)
-    if (typeof window !== 'undefined' && window.__APPLY_QUIZ_FILTER__) {
+    // optional quiz filter
+    if (applyQuiz) {
       const answers = loadQuizAnswers();
       if (answers) {
         base = base
@@ -70,11 +72,9 @@ export default function ProductList() {
           .sort((a, b) => b.s - a.s)
           .map(x => x.p);
       }
-      // reset flag after applying once
-      window.__APPLY_QUIZ_FILTER__ = false;
     }
     return base;
-  }, [products, searchQuery]);
+  }, [products, searchQuery, applyQuiz]);
 
   if (loading) return <div className="text-center py-10 text-lg text-gray-500">Đang tải sản phẩm...</div>;
   if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
@@ -85,7 +85,7 @@ export default function ProductList() {
       {loadQuizAnswers() && (
         <div className="mb-4 flex items-center justify-between glass p-4">
           <div className="text-sm text-slate-700">Bạn đã có câu trả lời Quiz. Áp dụng bộ gợi ý để sắp xếp danh sách?</div>
-          <button onClick={() => { window.__APPLY_QUIZ_FILTER__ = true; window.dispatchEvent(new Event('popstate')); }} className="px-3 py-1 rounded-full border border-blue-200 text-blue-700 hover:bg-blue-50">Áp dụng gợi ý</button>
+          <button onClick={() => setApplyQuiz(true)} className="px-3 py-1 rounded-full border border-blue-200 text-blue-700 hover:bg-blue-50">Áp dụng gợi ý</button>
         </div>
       )}
       {searchQuery && (
