@@ -1,123 +1,132 @@
 # Perfume Shop - MERN Stack
 
-Một ứng dụng e-commerce đơn giản về nước hoa với giao diện hiện đại (Tailwind) và backend MongoDB/Express. Phù hợp để học và trình diễn dự án cá nhân.
+A simple e-commerce perfume shop with a modern UI (Tailwind) and MongoDB/Express backend. Ideal for learning and showcasing personal projects.
 
 ## 🚀 Live Demo
-- (Sắp có) – có thể deploy lên Vercel/Netlify (frontend) và Render/Railway (backend).
+- **Frontend**: [https://ltuan126.github.io/Perfurme](https://ltuan126.github.io/Perfurme) (Deployed on GitHub Pages / Vercel)
+- **Backend**: Deployed on Render (with MongoDB Atlas)
 
-## ✨ Chức năng
-- Danh sách và chi tiết sản phẩm, responsive UI.
-- Tìm kiếm (search) theo tên/mô tả sản phẩm.
-- Giỏ hàng, đặt hàng COD (lưu đơn hàng vào DB).
-- Đăng ký / Đăng nhập với JWT (access token) – thay thế cơ chế localStorage demo cũ.
-- Admin: thêm/sửa/xóa sản phẩm (bảo vệ bằng role + JWT), quản lý đơn hàng & cập nhật trạng thái.
+## ✨ Features
+- **Frontend & UI**: Product list, product details, dark mode & responsive UI (Tailwind CSS).
+- **Search & Filter**: Search products by name/description.
+- **Shopping**: Shopping cart, COD ordering (orders saved to DB).
+- **Authentication**: Secure Registration / Login using JWT (JSON Web Tokens).
+- **Admin**: Dashboard, add/edit/delete products, manage orders & update status (Authorization via role + JWT).
+- **Interaction**:
+  - Product Reviews with an integrated star rating system.
+  - Q&A System allowing administrators to respond to buyer inquiries.
+- **Policies**: Loyalty points program and bundle purchases (mini bundles) for special offers.
 
 ## 🛠️ Tech Stack
 - Frontend: React, React Router, Tailwind CSS.
 - Backend: Node.js, Express.
 - Database: MongoDB, Mongoose.
 
-## 📦 Yêu cầu môi trường
+## 📦 Requirements
 - Node.js >= 16
-- MongoDB (Local hoặc Atlas)
+- MongoDB (Local or Atlas)
 
-## ⚙️ Cài đặt & Chạy
-1) Cài dependencies
-```
+## ⚙️ Installation & Setup
+1) Install dependencies
+```bash
 npm install
 ```
 
-2) Cấu hình DB
-- Mặc định URI: `mongodb://localhost:27017/perfume`
-- Có thể chỉnh trong `src/db.js` để trỏ tới MongoDB Atlas.
+2) Database Configuration
+- Default URI: `mongodb://localhost:27017/perfume`
+- You can configure the URI in `src/db.js` to point to MongoDB Atlas.
 
-3) Khởi chạy MongoDB
-- Đảm bảo mongod đang chạy (Compass kết nối OK).
+3) Start MongoDB
+- Ensure `mongod` is running (Compass connects successfully).
 
-4) Import dữ liệu mẫu (tùy chọn)
-```
-node src/importProducts.js
+4) Import Sample Data (Optional)
+```bash
+node scripts/seedAll.js
 ```
 
-5) Chạy backend
-```
+5) Run Backend
+```bash
 node src/server.js
 ```
 
-6) Chạy frontend
-```
+6) Run Frontend
+```bash
 npm start
 ```
 
-Ghi chú:
-- `package.json` đã cấu hình proxy tới backend tại `http://localhost:5000` để gọi `/api/*` từ frontend trong dev.
+Note:
+- `package.json` is configured with a proxy to the backend at `http://localhost:5000` for calling `/api/*` from the frontend during development.
 
-## 🔐 Xác thực & Tài khoản mẫu
-Hệ thống đã chuyển sang JWT.
+## 🔐 Authentication & Sample Accounts
+The system has migrated to utilizing JWT.
 
-Flow cơ bản:
-1. Đăng ký: `POST /api/auth/register` body `{ username, password }`.
-2. Đăng nhập: `POST /api/auth/login` trả về `{ token, user: { username, role } }`.
-3. Lưu `token` ở frontend (hiện bản demo dùng localStorage: `auth_token`).
-4. Gọi API admin/protected thêm header:
-	 `Authorization: Bearer <token>`
+Basic Flow:
+1. Register: `POST /api/auth/register` body `{ username, password }`.
+2. Login: `POST /api/auth/login` returns `{ token, user: { username, role } }`.
+3. Save `token` on the frontend (current demo uses localStorage: `auth_token`).
+4. Call protected/admin APIs by adding header:
+   `Authorization: Bearer <token>`
 
-Các route bảo vệ (yêu cầu admin + JWT):
+Protected routes (requires admin + JWT):
 - `POST /api/products`
 - `PUT /api/products/:id`
 - `DELETE /api/products/:id`
 - `GET /api/orders`
 - `PUT /api/orders/:id`
 
-Ví dụ fetch cập nhật sản phẩm:
-```
+Example fetch to update a product:
+```javascript
 fetch('/api/products/123', {
-	method: 'PUT',
-	headers: {
-		'Content-Type': 'application/json',
-		'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
-	},
-	body: JSON.stringify({ name: 'New', price: 100 })
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+  },
+  body: JSON.stringify({ name: 'New', price: 100 })
 })
 ```
 
-Tài khoản mẫu (nếu đã seed / tạo sẵn):
-- Admin: tự tạo bằng cách đăng ký rồi sửa role trong DB (`users` collection) thành `admin`.
+Sample Accounts (if seeded / pre-created):
+- Admin: Manually create by registering, then update the role in the DB (`users` collection) to `admin`.
 
-Lưu ý bảo mật (kế hoạch nâng cấp):
-- Access token hiện exp ngắn (ví dụ 15m) – chưa có refresh token.
-- Có thể chuyển từ localStorage sang httpOnly cookie để tránh XSS.
-- Bổ sung rate limiting & password reset sau.
+Security notes (planned upgrades):
+- Access tokens currently have a short expiration (e.g., 15m) – no refresh token yet.
+- May migrate from localStorage to httpOnly cookies to mitigate XSS vulnerabilities.
+- Add rate limiting & password reset later.
 
-## 📂 Cấu trúc chính
-- `src/server.js`: REST API (products, orders)
-- `src/db.js`: Kết nối MongoDB
-- `src/models/`: Schema (Product, Order)
-- `src/importProducts.js`: Seed dữ liệu sản phẩm mẫu
-- `src/components/`: UI React (Home, Products, About, Contact, Cart, Admin, …)
-- `src/index.css`: Tailwind + helper classes (btn-primary, glass, …)
+## 📂 Project Structure
+The project has been refactored into a standard MVC architecture, separating logic, routers, and database schemas for easier maintenance and scalability:
+- `src/server.js`: Application entry point (Sets up Express app & global middlewares).
+- `src/db.js`: MongoDB connection configuration using Mongoose.
+- `src/routes/`: API Endpoints (`auth`, `products`, `orders`, `qa`, `review`).
+- `src/controllers/`: Business logic handlers for specific routes.
+- `src/models/`: Database schemas (Product, Order, User, QA, Review).
+- `src/middleware/`: JWT Authentication & Error Handlers.
+- `scripts/`: Tools to seed sample data (`seedAll.js`, `seedMinis.js`, `addSizes.js`).
+- `src/components/`: React Frontend Components (Home, Auth, Cart, Admin, Product Details, etc.).
+- `src/index.css`: Tailwind configuration and custom utility classes.
 
-## 📝 Ghi chú Git
-Nếu gặp lỗi push non-fast-forward:
-```
+## 📝 Git Notes
+If you encounter a non-fast-forward push error:
+```bash
 git fetch origin
 git rebase origin/main
-# Nếu conflict: sửa file rồi
+# If conflicts occur: resolve them in files, then
 git add <file>
 git rebase --continue
 git push origin main
 ```
 
-## 📧 Liên hệ
-- Tác giả: Ltuan126
-- Email: (bổ sung nếu cần)
+## 📧 Contact
+- Author: Ltuan126
+- Email: (add if necessary)
 
 ---
 ## 🔭 Roadmap
-Chi tiết lộ trình phát triển nâng cao (kiến trúc, JWT, pagination, stock, testing, deploy) xem tại: [docs/ROADMAP.md](./docs/ROADMAP.md)
+Detailed advanced development roadmap (architecture, JWT, pagination, stock, testing, deployment) can be found at: [docs/ROADMAP.md](./docs/ROADMAP.md)
 
-Ghi chú: Đã nâng cấp lên JWT. Tham khảo chi tiết roadmap để xem các bước bảo mật tiếp theo (refresh token, CSRF, rate limiting...).
+Note: Upgraded to JWT. Refer to the roadmap for the next security steps (refresh token, CSRF, rate limiting, etc.).
 
 ---
 ## 🎁 Loyalty & Bundle
-Quy tắc tích điểm (1 điểm mỗi 10.000₫ sau giảm) và ưu đãi combo mini (3 chai mini -10%) xem chi tiết tại: [docs/LOYALTY.md](./docs/LOYALTY.md)
+Rules for earning points (1 point per 10,000₫ after discount) and mini combo offers (3 mini bottles for -10%) can be found here: [docs/LOYALTY.md](./docs/LOYALTY.md)
