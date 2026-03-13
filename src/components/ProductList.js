@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { products as localProducts } from '../data/products';
 import { loadQuizAnswers } from '../utils/quiz';
-import { productMeta } from '../data/productMeta';
+import { productMeta, allFamilies } from '../data/productMeta';
 import API_BASE_URL from '../config/api';
 
 export default function ProductList() {
@@ -13,6 +13,9 @@ export default function ProductList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [applyQuiz, setApplyQuiz] = useState(false);
+  const [priceFilter, setPriceFilter] = useState('all');
+  const [familyFilter, setFamilyFilter] = useState('all');
+  const [sortOrder, setSortOrder] = useState('default');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -72,9 +75,40 @@ export default function ProductList() {
           .sort((a, b) => b.s - a.s)
           .map(x => x.p);
       }
+    } else {
+      // price filter
+      if (priceFilter !== 'all') {
+        base = base.filter(p => {
+          const price = parseFloat(p.price) || 0;
+          if (priceFilter === 'under100') return price < 100;
+          if (priceFilter === '100to200') return price >= 100 && price <= 200;
+          if (priceFilter === 'over200') return price > 200;
+          return true;
+        });
+      }
+
+      // family filter
+      if (familyFilter !== 'all') {
+        base = base.filter(p => {
+          const pId = p.id || p._id;
+          let meta = productMeta[pId];
+          if (!meta) {
+            const foundMeta = Object.values(productMeta).find(m => m.name.toLowerCase() === (p.name || '').toLowerCase());
+            meta = foundMeta;
+          }
+          return meta && meta.families?.includes(familyFilter);
+        });
+      }
+
+      // sort order
+      if (sortOrder === 'price-asc') {
+        base = [...base].sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0));
+      } else if (sortOrder === 'price-desc') {
+        base = [...base].sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0));
+      }
     }
     return base;
-  }, [products, searchQuery, applyQuiz]);
+  }, [products, searchQuery, applyQuiz, priceFilter, familyFilter, sortOrder]);
 
   if (loading) return <div className="text-center py-10 text-lg text-gray-500">Đang tải sản phẩm...</div>;
   if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
@@ -91,6 +125,48 @@ export default function ProductList() {
       {searchQuery && (
         <p className="text-sm text-slate-600 mb-4">Kết quả tìm kiếm cho: <span className="font-semibold text-slate-800">{searchQuery}</span></p>
       )}
+
+      {/* Filter and Sort Bar */}
+      <div className="mb-6 p-4 glass rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
+        <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
+          <span className="font-semibold text-slate-700">Lọc theo:</span>
+          <select 
+            value={priceFilter} 
+            onChange={e => setPriceFilter(e.target.value)}
+            className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white shadow-sm transition-all"
+          >
+            <option value="all">Mọi mức giá</option>
+            <option value="under100">Dưới $100</option>
+            <option value="100to200">$100 - $200</option>
+            <option value="over200">Trên $200</option>
+          </select>
+
+          <select 
+            value={familyFilter} 
+            onChange={e => setFamilyFilter(e.target.value)}
+            className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white capitalize shadow-sm transition-all"
+          >
+            <option value="all">Tất cả nhóm hương</option>
+            {allFamilies.map(f => (
+              <option key={f} value={f}>{f.replace('-', ' ')}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-4 items-center w-full md:w-auto md:justify-end">
+          <span className="font-semibold text-slate-700">Sắp xếp:</span>
+          <select 
+            value={sortOrder} 
+            onChange={e => setSortOrder(e.target.value)}
+            className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white shadow-sm transition-all"
+          >
+            <option value="default">Mặc định</option>
+            <option value="price-asc">Giá: Thấp đến Cao</option>
+            <option value="price-desc">Giá: Cao đến Thấp</option>
+          </select>
+        </div>
+      </div>
+
       {filtered.length === 0 ? (
         <div className="glass p-8 text-center text-slate-600">Không tìm thấy sản phẩm phù hợp.</div>
       ) : (
