@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
+import { products as localProducts } from '../data/products';
 import API_BASE_URL from '../config/api';
 
 export default function Home() {
@@ -10,9 +11,19 @@ export default function Home() {
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/products`)
-      .then(res => res.json())
-      .then(data => { setProducts(data); setLoading(false); })
-      .catch(() => { setError('Không thể tải sản phẩm nổi bật!'); setLoading(false); });
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        } else {
+          setProducts(localProducts);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setProducts(localProducts);
+        setLoading(false);
+      });
   }, []);
 
   const featured = (products && Array.isArray(products)) ? products.slice(0, 4) : [];
@@ -111,7 +122,7 @@ export default function Home() {
         {!loading && !error && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {featured.map(p => (
-              <ProductCard key={p._id} product={p} />
+              <ProductCard key={p._id || p.id} product={p} />
             ))}
           </div>
         )}
