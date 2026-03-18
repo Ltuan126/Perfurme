@@ -14,7 +14,8 @@ const qaRoutes = require('./routes/qa');
 
 // Import middleware
 const { authRequired } = require('./middleware/auth');
-const { getMe } = require('./controllers/authController');
+const { getMe, updateMe } = require('./controllers/authController');
+const { validateProfileUpdate } = require('./middleware/validate');
 const { errorHandler } = require('./middleware/errorHandler');
 
 // Initialize app
@@ -37,6 +38,7 @@ app.use('/api/qas', qaRoutes);
 
 // User profile route
 app.get('/api/me', authRequired, getMe);
+app.put('/api/me', authRequired, validateProfileUpdate, updateMe);
 
 // Health check
 app.get('/api/health', (req, res) => {

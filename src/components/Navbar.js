@@ -57,7 +57,11 @@ export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
     if (token) {
       fetch(`${API_BASE_URL}/api/me`, { headers: { Authorization: 'Bearer ' + token } })
         .then(r => r.ok ? r.json() : null)
-        .then(data => { if (data) setLoyalty({ points: data.points || 0, tier: data.tier || 'None' }); })
+        .then(data => {
+          if (data?.data) {
+            setLoyalty({ points: data.data.points || 0, tier: data.data.tier || 'None' });
+          }
+        })
         .catch(() => {
           const l = loadUserLoyalty(currentUser);
           setLoyalty(l);
@@ -191,9 +195,9 @@ export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
                   <div className="h-px bg-slate-200" />
                   <ul className="py-1">
                     <li>
-                      <button className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-slate-100 text-sm">
-                        <FiUser className="text-slate-500" /> Profile (soon)
-                      </button>
+                      <Link to="/profile" className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-slate-100 text-sm" onClick={() => setUserMenuOpen(false)}>
+                        <FiUser className="text-slate-500" /> Profile
+                      </Link>
                     </li>
                     {isAdmin && (
                       <>
@@ -269,6 +273,11 @@ export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
           {currentUser && (
             <li className="pt-2">
               <div className="text-white/80 text-sm mb-1 flex items-center gap-2">{currentUser} {isAdmin && <span className="px-2 py-[1px] rounded-full text-[10px] font-semibold bg-white/20 text-white border border-white/25">Admin</span>}</div>
+              <div className="flex items-center justify-center mb-2">
+                <Link to="/profile" className="px-4 py-2 rounded-full bg-white/10 text-white hover:bg-white/20 border border-white/25 text-sm" onClick={() => setIsOpen(false)}>
+                  Profile
+                </Link>
+              </div>
               <button onClick={() => { setIsOpen(false); onLogout && onLogout(); }} className="px-4 py-2 rounded-full bg-white/15 text-white hover:bg-white/25 border border-white/25 text-sm">
                 Logout
               </button>

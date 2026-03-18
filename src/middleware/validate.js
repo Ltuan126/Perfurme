@@ -92,11 +92,21 @@ const validateReview = validateBody([
     { field: 'rating', label: 'Đánh giá', required: true, type: 'number', min: 1, max: 5 }
 ]);
 
+const validateProfileUpdate = validateBody([
+    { field: 'fullName', label: 'Họ tên', type: 'string', maxlength: 100 },
+    { field: 'email', label: 'Email', type: 'string', maxlength: 120, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, matchMsg: 'Email không hợp lệ' },
+    { field: 'phone', label: 'Số điện thoại', type: 'string', match: /^[0-9+\-\s()]{7,20}$/, matchMsg: 'Số điện thoại không hợp lệ' },
+    { field: 'address', label: 'Địa chỉ', type: 'string', maxlength: 300 },
+    { field: 'gender', label: 'Giới tính', type: 'string', match: /^(male|female|other)$/, matchMsg: 'Giới tính không hợp lệ' },
+    { field: 'dateOfBirth', label: 'Ngày sinh', type: 'string', match: /^\d{4}-\d{2}-\d{2}$/, matchMsg: 'Ngày sinh phải theo định dạng YYYY-MM-DD' }
+]);
+
 module.exports = {
     validateBody,
     validateRegister,
     validateLogin,
     validateProduct,
     validateOrder,
-    validateReview
+    validateReview,
+    validateProfileUpdate
 };

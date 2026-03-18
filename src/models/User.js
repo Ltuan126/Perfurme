@@ -13,6 +13,40 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Mật khẩu là bắt buộc']
   },
+  fullName: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'Họ tên tối đa 100 ký tự'],
+    default: ''
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    maxlength: [120, 'Email tối đa 120 ký tự'],
+    default: ''
+  },
+  phone: {
+    type: String,
+    trim: true,
+    maxlength: [20, 'Số điện thoại tối đa 20 ký tự'],
+    default: ''
+  },
+  address: {
+    type: String,
+    trim: true,
+    maxlength: [300, 'Địa chỉ tối đa 300 ký tự'],
+    default: ''
+  },
+  dateOfBirth: {
+    type: Date,
+    default: null
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other', ''],
+    default: ''
+  },
   role: {
     type: String,
     enum: {
