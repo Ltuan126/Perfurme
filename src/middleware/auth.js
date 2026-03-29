@@ -2,6 +2,11 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_change_this_secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
+
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev_change_this_secret')) {
+  throw new Error('JWT_SECRET chưa được cấu hình an toàn cho production');
+}
 
 function authRequired(req, res, next) {
   const auth = req.headers.authorization;
@@ -31,4 +36,4 @@ function requireRole(role) {
 const isAuthenticated = authRequired;
 const isAdmin = (req, res, next) => requireRole('admin')(req, res, next);
 
-module.exports = { authRequired, requireRole, isAuthenticated, isAdmin, JWT_SECRET };
+module.exports = { authRequired, requireRole, isAuthenticated, isAdmin, JWT_SECRET, JWT_EXPIRES_IN };

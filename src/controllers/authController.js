@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { JWT_SECRET } = require('../middleware/auth');
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 
 // @desc    Đăng ký tài khoản
@@ -23,7 +23,7 @@ const register = asyncHandler(async (req, res) => {
     const token = jwt.sign(
         { sub: user._id, username: user.username, role: user.role },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.status(201).json({
@@ -53,7 +53,7 @@ const login = asyncHandler(async (req, res) => {
     const token = jwt.sign(
         { sub: user._id, username: user.username, role: user.role },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.json({
