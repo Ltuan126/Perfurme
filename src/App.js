@@ -12,6 +12,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import Quiz from './components/Quiz';
 import Profile from './components/Profile';
+import PaymentCallback from './components/PaymentCallback';
 
 
 export default function App() {
@@ -109,6 +110,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/payment/callback" element={<PaymentCallback />} />
           <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <Navigate to="/" />} />
           <Route path="/admin/orders" element={isAdmin ? <AdminOrders /> : <Navigate to="/" />} />
         </Routes>
