@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const paymentService = require('../services/paymentService');
 
 // --- Helpers ---
 
@@ -25,6 +26,7 @@ function isMini(productName = '') {
 const createOrder = asyncHandler(async (req, res) => {
     const body = req.body || {};
     const cart = Array.isArray(body.cart) ? body.cart : [];
+    const paymentMethod = body.paymentMethod || 'cod';
 
     if (cart.length === 0) {
         throw new AppError('Giỏ hàng không được rỗng', 400);
@@ -57,11 +59,13 @@ const createOrder = asyncHandler(async (req, res) => {
         subtotal,
         discount,
         total,
-        username: body.username
+        username: body.username,
+        paymentMethod,
+        paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending'
     });
 
-    // Award loyalty points if user provided
-    if (body.username) {
+    // Award loyalty points immediately for COD only
+    if (body.username && paymentMethod === 'cod') {
         const user = await User.findOne({ username: body.username });
         if (user) {
             const earned = calcEarnedPoints(total);

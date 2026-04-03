@@ -7,6 +7,8 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [redirecting, setRedirecting] = useState(false);
 
   const summary = useMemo(() => {
     const items = Array.isArray(cart) ? cart : [];
@@ -39,19 +41,42 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
       const res = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, cart }),
+        body: JSON.stringify({ ...form, cart, paymentMethod }),
       });
       if (!res.ok) throw new Error('Lỗi đặt hàng!');
-      setSuccess(true);
-      setForm({ name: '', address: '', phone: '' });
-      // Award local loyalty points to the currently logged-in user (client-side fallback)
-      const username = localStorage.getItem('user_login');
-      if (username && summary.estPoints > 0) {
-        addPoints(username, summary.estPoints);
+      const payload = await res.json();
+      const orderId = payload.data._id;
+
+      // COD: Success immediately and award points
+      if (paymentMethod === 'cod') {
+        setSuccess(true);
+        setForm({ name: '', address: '', phone: '' });
+        const username = localStorage.getItem('user_login');
+        if (username && summary.estPoints > 0) {
+          addPoints(username, summary.estPoints);
+        }
+        if (onOrderSuccess) onOrderSuccess();
+      } else {
+        // Momo/VNPay: Initiate payment session
+        setRedirecting(true);
+        const payRes = await fetch(`${API_BASE_URL}/api/payment/init`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, method: paymentMethod })
+        });
+        if (!payRes.ok) throw new Error('Khởi tạo thanh toán thất bại');
+        const payData = await payRes.json();
+        
+        // Redirect to payment gateway
+        if (paymentMethod === 'momo' && payData.data.paymentLink) {
+          window.location.href = payData.data.paymentLink;
+        } else if (paymentMethod === 'vnpay' && payData.data.paymentUrl) {
+          window.location.href = payData.data.paymentUrl;
+        }
       }
-      if (onOrderSuccess) onOrderSuccess();
     } catch {
       setError('Có lỗi khi đặt hàng!');
+      setRedirecting(false);
     } finally {
       setLoading(false);
     }
@@ -62,6 +87,19 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
   return (
     <form onSubmit={handleSubmit} className="glass mx-auto mt-4 p-6 max-w-sm">
       <h2 className="text-lg font-semibold text-blue-700 mb-3 text-center">Thông tin nhận hàng (COD)</h2>
+      <div className="mb-3 text-sm">
+        <label className="block text-slate-600 font-semibold mb-2">Phương thức thanh toán</label>
+        <select
+          value={paymentMethod}
+          onChange={e => setPaymentMethod(e.target.value)}
+          disabled={loading || redirecting}
+          className="w-full border border-slate-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+        >
+          <option value="cod">Thanh toán khi nhận hàng (COD)</option>
+          <option value="momo">Momo QR</option>
+          <option value="vnpay">VNPay</option>
+        </select>
+      </div>
       <div className="mb-3 text-sm text-slate-700 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
         <div className="flex justify-between"><span>Tạm tính</span><span className="font-semibold">${summary.subtotal.toFixed(2)}</span></div>
         <div className="flex justify-between"><span>Giảm combo 15ml{summary.miniCount >= 3 ? '' : ' (chọn đủ 3 chai 15ml để nhận -10%)'}</span><span className="font-semibold text-green-600">-${summary.discount.toFixed(2)}</span></div>
@@ -72,8 +110,8 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
       <input name="address" value={form.address} onChange={handleChange} placeholder="Địa chỉ nhận hàng" className="px-4 py-2 border rounded-full w-full mb-2 focus:ring-2 focus:ring-blue-300 outline-none" />
       <input name="phone" value={form.phone} onChange={handleChange} placeholder="Số điện thoại" className="px-4 py-2 border rounded-full w-full mb-2 focus:ring-2 focus:ring-blue-300 outline-none" />
       {error && <div className="text-red-500 text-center mb-2">{error}</div>}
-      <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
-        {loading ? 'Đang gửi...' : `Đặt hàng COD • +${summary.estPoints} điểm`}
+      <button type="submit" disabled={loading || redirecting} className="btn-primary w-full mt-2">
+        {redirecting ? 'Chuyển hướng đến cổng thanh toán...' : loading ? 'Đang gửi...' : `Đặt hàng • +${summary.estPoints} điểm`}
       </button>
     </form>
   );
