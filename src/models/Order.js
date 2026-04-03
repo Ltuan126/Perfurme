@@ -72,6 +72,27 @@ const orderSchema = new mongoose.Schema({
         },
         default: 'pending',
         index: true
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['cod', 'momo', 'vnpay'],
+        default: 'cod',
+        index: true
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'failed', 'cancelled'],
+        default: 'pending',
+        index: true
+    },
+    paymentRef: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    paidAt: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true  // auto createdAt + updatedAt
@@ -80,6 +101,8 @@ const orderSchema = new mongoose.Schema({
 // Compound index for common queries
 orderSchema.index({ status: 1, createdAt: -1 });
 orderSchema.index({ username: 1, createdAt: -1 });
+orderSchema.index({ paymentStatus: 1, paymentMethod: 1 });
+orderSchema.index({ paymentRef: 1 });
 
 const Order = mongoose.model('Order', orderSchema);
 
