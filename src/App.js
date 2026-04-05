@@ -13,6 +13,7 @@ import Contact from './components/Contact';
 import Quiz from './components/Quiz';
 import Profile from './components/Profile';
 import PaymentCallback from './components/PaymentCallback';
+import CheckoutForm from './components/CheckoutForm';
 
 
 export default function App() {
@@ -111,6 +112,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/payment/callback" element={<PaymentCallback />} />
+          <Route path="/checkout" element={<CheckoutForm cart={cartItems} onOrderSuccess={() => setCartItems([])} />} />
           <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <Navigate to="/" />} />
           <Route path="/admin/orders" element={isAdmin ? <AdminOrders /> : <Navigate to="/" />} />
         </Routes>

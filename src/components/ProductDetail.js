@@ -101,8 +101,11 @@ export default function ProductDetail({ addToCart }) {
             </button>
           </div>
           {justAdded && (
-            <div className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-2xl px-3 py-2">
-              Đã thêm vào giỏ hàng. <Link to="/products" className="underline font-semibold">Tiếp tục xem sản phẩm</Link> hoặc <Link to="/cart" className="underline font-semibold">xem giỏ hàng</Link>.
+            <div className="mt-3 flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
+              <span className="text-sm text-green-700 font-medium">✓ Đã thêm vào giỏ hàng!</span>
+              <Link to="/checkout" className="ml-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-full transition">
+                Tiến hành thanh toán →
+              </Link>
             </div>
           )}
         </div>

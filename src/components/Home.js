@@ -53,12 +53,12 @@ export default function Home() {
             {/* Stats */}
             <div className="mt-10 grid grid-cols-3 gap-4">
               <div className="rounded-2xl bg-white/10 border border-white/20 p-4 backdrop-blur-xl shadow-[0_12px_30px_-18px_rgba(15,23,42,0.7)]">
-                <div className="text-3xl font-extrabold tracking-wide text-white">100+</div>
+                <div className="text-3xl font-extrabold tracking-wide text-white">{products.length}</div>
                 <div className="text-[11px] uppercase tracking-[0.2em] text-white/75 mt-1">Sản phẩm</div>
               </div>
               <div className="rounded-2xl bg-white/10 border border-white/20 p-4 backdrop-blur-xl shadow-[0_12px_30px_-18px_rgba(15,23,42,0.7)]">
-                <div className="text-3xl font-extrabold tracking-wide text-white">50K+</div>
-                <div className="text-[11px] uppercase tracking-[0.2em] text-white/75 mt-1">Khách hàng</div>
+                <div className="text-3xl font-extrabold tracking-wide text-white">An toàn</div>
+                <div className="text-[11px] uppercase tracking-[0.2em] text-white/75 mt-1">Thanh toán</div>
               </div>
               <div className="rounded-2xl bg-white/10 border border-white/20 p-4 backdrop-blur-xl shadow-[0_12px_30px_-18px_rgba(15,23,42,0.7)]">
                 <div className="text-3xl font-extrabold tracking-wide text-white">4.9⭐</div>
