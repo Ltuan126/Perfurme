@@ -15,6 +15,14 @@ import Profile from './components/Profile';
 import PaymentCallback from './components/PaymentCallback';
 import CheckoutForm from './components/CheckoutForm';
 
+const routerBasename = (() => {
+  const publicUrl = process.env.PUBLIC_URL || '';
+  if (!publicUrl) return undefined;
+
+  const path = publicUrl.replace(/^https?:\/\/[^/]+/i, '').replace(/\/$/, '');
+  return path || undefined;
+})();
+
 
 export default function App() {
   const [cartItems, setCartItems] = useState(() => {
@@ -99,7 +107,7 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter basename={routerBasename}>
       <Navbar cartCount={cartCount} isAdmin={isAdmin} onLogout={handleLogout} currentUser={user} />
       <div className="main-container">
         <Routes>
