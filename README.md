@@ -1,14 +1,10 @@
 # Perfume Shop - MERN Stack
 
-A simple e-commerce perfume shop with a modern UI (Tailwind) and MongoDB/Express backend. Ideal for learning and showcasing personal projects.
+A fullstack e-commerce web application built with the MERN stack, featuring authentication (JWT), admin dashboard, order management, and interactive user features such as reviews and Q&A. Designed as a practical project for learning real-world architecture and deployment.
 
 ## 🚀 Live Demo
-<<<<<<< HEAD
-- **Frontend**: Deployed on Vercel
-=======
-- **Frontend**: [https://ltuan126.github.io/Perfurme](https://ltuan126.github.io/Perfume) (Deployed on GitHub Pages / Vercel)
->>>>>>> caf5b8f8b5310425433c917bde877ddeb401e1fe
-- **Backend**: Deployed on Render (with MongoDB Atlas)
+- **Frontend**: https://elegancefragrance.vercel.app
+- **Backend**: Running on Render.
 
 ## ✨ Features
 - **Frontend & UI**: Product list, product details, dark mode & responsive UI (Tailwind CSS).
@@ -61,31 +57,7 @@ npm start
 Note:
 - `package.json` is configured with a proxy to the backend at `http://localhost:5000` for calling `/api/*` from the frontend during development.
 
-## ☁️ Deploy Frontend To Vercel
-1) Push source code to GitHub.
-
-2) In Vercel, choose **Add New Project** and import this repository.
-
-3) Use these build settings (if Vercel does not auto-detect CRA):
-- Build Command: `npm run build`
-- Output Directory: `build`
-
-4) Add environment variables in Vercel (if needed for frontend runtime config).
-  - `REACT_APP_API_BASE_URL=https://perfume-api-84pd.onrender.com`
-
-5) Deploy. `vercel.json` already includes SPA rewrites so React Router routes work when reloading deep links.
-
-## 🔗 Connect Vercel Frontend With Render Backend
-Set these environment variables on Render backend service:
-
-- `NODE_ENV=production`
-- `CORS_ORIGIN=https://elegancefragrance.vercel.app`
-
-Notes:
-- You can provide multiple allowed frontend origins by separating with commas.
-- Keep `CORS_ORIGIN=*` only for local testing, not production.
-
-## 🔐 Authentication & Sample Accounts
+## 🔐 Authentication
 The system has migrated to utilizing JWT.
 
 Basic Flow:
@@ -102,58 +74,31 @@ Protected routes (requires admin + JWT):
 - `GET /api/orders`
 - `PUT /api/orders/:id`
 
-Example fetch to update a product:
-```javascript
-fetch('/api/products/123', {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
-  },
-  body: JSON.stringify({ name: 'New', price: 100 })
-})
-```
-
-Sample Accounts (if seeded / pre-created):
-- Admin: Manually create by registering, then update the role in the DB (`users` collection) to `admin`.
-
-Security notes (planned upgrades):
-- Access tokens currently have a short expiration (e.g., 15m) – no refresh token yet.
-- May migrate from localStorage to httpOnly cookies to mitigate XSS vulnerabilities.
-- Add rate limiting & password reset later.
-
 ## 📂 Project Structure
-The project has been refactored into a standard MVC architecture, separating logic, routers, and database schemas for easier maintenance and scalability:
-- `src/server.js`: Application entry point (Sets up Express app & global middlewares).
-- `src/db.js`: MongoDB connection configuration using Mongoose.
-- `src/routes/`: API Endpoints (`auth`, `products`, `orders`, `qa`, `review`).
-- `src/controllers/`: Business logic handlers for specific routes.
-- `src/models/`: Database schemas (Product, Order, User, QA, Review).
-- `src/middleware/`: JWT Authentication & Error Handlers.
-- `scripts/`: Tools to seed sample data (`seedAll.js`, `seedMinis.js`, `addSizes.js`).
-- `src/components/`: React Frontend Components (Home, Auth, Cart, Admin, Product Details, etc.).
-- `src/index.css`: Tailwind configuration and custom utility classes.
+```text
+src/
+|-- server.js                # Application entry point (Express app and global middlewares)
+|-- db.js                    # MongoDB connection configuration using Mongoose
+|-- routes/                  # API endpoints: auth, products, orders, qa, review
+|-- controllers/             # Business logic handlers for route modules
+|-- models/                  # Database schemas: Product, Order, User, QA, Review
+|-- middleware/              # JWT authentication and error handlers
+|-- components/              # React frontend components (Home, Auth, Cart, Admin, etc.)
+`-- index.css                # Tailwind configuration and custom utility classes
 
-## 📝 Git Notes
-If you encounter a non-fast-forward push error:
-```bash
-git fetch origin
-git rebase origin/main
-# If conflicts occur: resolve them in files, then
-git add <file>
-git rebase --continue
-git push origin main
+scripts/
+|-- seedAll.js
+|-- seedMinis.js
+`-- addSizes.js              # Data seeding and product size utility scripts
 ```
 
 ## 📧 Contact
 - Author: Ltuan126
-- Email: (add if necessary)
+- Email: tuanlenguyen612@gmail.com
 
 ---
 ## 🔭 Roadmap
 Detailed advanced development roadmap (architecture, JWT, pagination, stock, testing, deployment) can be found at: [docs/ROADMAP.md](./docs/ROADMAP.md)
-
-Note: Upgraded to JWT. Refer to the roadmap for the next security steps (refresh token, CSRF, rate limiting, etc.).
 
 ---
 ## 🎁 Loyalty & Bundle
