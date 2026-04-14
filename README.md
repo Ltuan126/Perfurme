@@ -3,7 +3,11 @@
 A simple e-commerce perfume shop with a modern UI (Tailwind) and MongoDB/Express backend. Ideal for learning and showcasing personal projects.
 
 ## 🚀 Live Demo
+<<<<<<< HEAD
 - **Frontend**: Deployed on Vercel
+=======
+- **Frontend**: [https://ltuan126.github.io/Perfurme](https://ltuan126.github.io/Perfume) (Deployed on GitHub Pages / Vercel)
+>>>>>>> caf5b8f8b5310425433c917bde877ddeb401e1fe
 - **Backend**: Deployed on Render (with MongoDB Atlas)
 
 ## ✨ Features
