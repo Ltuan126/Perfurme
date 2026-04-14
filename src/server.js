@@ -23,6 +23,34 @@ const { errorHandler } = require('./middleware/errorHandler');
 // Initialize app
 const app = express();
 
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow server-to-server requests or same-origin requests without Origin header.
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.length === 0) {
+      // Development fallback for local frontend if CORS_ORIGIN is not set.
+      if (process.env.NODE_ENV !== 'production' && origin === 'http://localhost:3000') {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS origin not allowed'));
+    }
+
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('CORS origin not allowed'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
@@ -33,11 +61,7 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors(corsOptions));
 
 // --- API Routes ---
 app.use('/api/auth', authRoutes);

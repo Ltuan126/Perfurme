@@ -3,7 +3,7 @@
 A simple e-commerce perfume shop with a modern UI (Tailwind) and MongoDB/Express backend. Ideal for learning and showcasing personal projects.
 
 ## 🚀 Live Demo
-- **Frontend**: [https://ltuan126.github.io/Perfurme](https://ltuan126.github.io/Perfurme) (Deployed on GitHub Pages / Vercel)
+- **Frontend**: Deployed on Vercel
 - **Backend**: Deployed on Render (with MongoDB Atlas)
 
 ## ✨ Features
@@ -56,6 +56,30 @@ npm start
 
 Note:
 - `package.json` is configured with a proxy to the backend at `http://localhost:5000` for calling `/api/*` from the frontend during development.
+
+## ☁️ Deploy Frontend To Vercel
+1) Push source code to GitHub.
+
+2) In Vercel, choose **Add New Project** and import this repository.
+
+3) Use these build settings (if Vercel does not auto-detect CRA):
+- Build Command: `npm run build`
+- Output Directory: `build`
+
+4) Add environment variables in Vercel (if needed for frontend runtime config).
+  - `REACT_APP_API_BASE_URL=https://perfume-api-84pd.onrender.com`
+
+5) Deploy. `vercel.json` already includes SPA rewrites so React Router routes work when reloading deep links.
+
+## 🔗 Connect Vercel Frontend With Render Backend
+Set these environment variables on Render backend service:
+
+- `NODE_ENV=production`
+- `CORS_ORIGIN=https://elegancefragrance.vercel.app`
+
+Notes:
+- You can provide multiple allowed frontend origins by separating with commas.
+- Keep `CORS_ORIGIN=*` only for local testing, not production.
 
 ## 🔐 Authentication & Sample Accounts
 The system has migrated to utilizing JWT.

@@ -1,7 +1,6 @@
 {
   "name": "perfumejs",
   "version": "1.0.0",
-  "homepage": "https://ltuan126.github.io/Perfume",
   "private": true,
   "description": "",
   "keywords": [],
@@ -30,9 +29,7 @@
     "server": "node src/server.js",
     "seed:minis": "node scripts/seedMinis.js",
     "seed:sizes": "node scripts/addSizes.js",
-    "tailwind-build": "npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "tailwind-build": "npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch"
   },
   "browserslist": {
     "production": [
@@ -49,7 +46,6 @@
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "cross-env": "^7.0.3",
-    "gh-pages": "^6.3.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.3.5"
   },
