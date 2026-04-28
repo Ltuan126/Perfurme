@@ -1,14 +1,17 @@
 /**
  * Payment Service Layer
  * Abstract payment gateway implementations for Momo, VNPay, COD
- * 
- * Usage:
- *   const paymentService = require('.../paymentService');
- *   const session = await paymentService.initiate('momo', { amount, orderId, ... });
- *   const verified = paymentService.verifyCallback('momo', webhookPayload);
  */
 
 const crypto = require('crypto');
+const qs = require('qs'); // dùng qs.stringify giống official VNPay NodeJS sample
+
+// Helper: sắp xếp object theo key alphabet (VNPay yêu cầu)
+function sortObject(obj) {
+  const sorted = {};
+  Object.keys(obj).sort().forEach(key => { sorted[key] = obj[key]; });
+  return sorted;
+}
 
 // === COD (Cash on Delivery) ===
 const codGateway = {
@@ -43,7 +46,7 @@ const momoGateway = {
     const partnerCode = process.env.MOMO_PARTNER_CODE || 'MOMOXXXXXX';
     const accessKey = process.env.MOMO_ACCESS_KEY || 'access_key_test';
     const secretKey = process.env.MOMO_SECRET_KEY || 'secret_key_test';
-    const endpoint = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/gw_payment/transactionProcessor';
+    const endpoint = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create';
 
     const requestId = `${Date.now()}`;
     const requestType = 'captureWallet';
@@ -72,21 +75,34 @@ const momoGateway = {
       lang: 'vi'
     };
 
-    // Momo API call (mock for now, real call needs actual API)
-    // const response = await fetch(endpoint, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload)
-    // }).then(r => r.json());
+    // Gọi Momo Sandbox API (v2)
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    // Return payment link (real implementation would get from Momo API)
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Momo API error ${response.status}: ${errText}`);
+    }
+
+    const momoRes = await response.json();
+
+    // resultCode = 0 là thành công, Momo trả về payUrl
+    if (momoRes.resultCode !== 0) {
+      throw new Error(`Momo từ chối: [${momoRes.resultCode}] ${momoRes.message}`);
+    }
+
     return {
       success: true,
       method: 'momo',
       orderId,
       amount,
       requestId,
-      paymentLink: `${endpoint}?partnerCode=${partnerCode}&accessKey=${accessKey}&requestId=${requestId}`,
+      paymentLink: momoRes.payUrl,   // URL redirect sang Momo
+      deeplink: momoRes.deeplink,    // mở app Momo (optional)
+      qrCodeUrl: momoRes.qrCodeUrl,  // QR code image URL
       signature
     };
   },
@@ -141,47 +157,61 @@ const vnpayGateway = {
     const {
       amount,
       orderId,
-      orderInfo = 'Thanh toan don hang',
+      orderInfo = 'Thanh toan don hang', // KHÔNG dấu, KHÔNG ký tự đặc biệt theo yêu cầu VNPay
       ipAddress = '127.0.0.1',
       returnUrl = process.env.VNPAY_RETURN_URL || 'http://localhost:3000/payment/callback'
     } = config;
 
-    const tmnCode = process.env.VNPAY_TMN_CODE || 'TMNCODE0000';
+    const tmnCode   = process.env.VNPAY_TMN_CODE    || 'TMNCODE0000';
     const hashSecret = process.env.VNPAY_HASH_SECRET || 'hash_secret_test';
-    const vnpayEndpoint = process.env.VNPAY_ENDPOINT || 'https://sandbox.vnpayment.vn/paymentv2/Transaction/BillDetail';
+    const vnpayEndpoint = process.env.VNPAY_ENDPOINT || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+    const ipnUrl = process.env.VNPAY_IPN_URL || '';
 
-    const vnp_Params = {
-      vnp_Version: '2.1.0',
-      vnp_Command: 'pay',
-      vnp_TmnCode: tmnCode,
-      vnp_Amount: Math.round(amount * 100), // VNPay expects in cents
-      vnp_CurrCode: 'VND',
-      vnp_TxnRef: String(orderId),
+    // Tạo ngày theo timezone GMT+7 (VNPay yêu cầu)
+    const now = new Date();
+    const createDate = now.toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
+      .replace(/[-: ]/g, '').slice(0, 14);
+
+    let vnp_Params = {
+      vnp_Version:   '2.1.0',
+      vnp_Command:   'pay',
+      vnp_TmnCode:   tmnCode,
+      vnp_Locale:    'vn',
+      vnp_CurrCode:  'VND',
+      vnp_TxnRef:    String(orderId),
       vnp_OrderInfo: orderInfo,
       vnp_OrderType: 'other',
-      vnp_Locale: 'vn',
+      vnp_Amount:    Math.round(amount * 100), // nhân 100 để bỏ phần thập phân
       vnp_ReturnUrl: returnUrl,
-      vnp_IpAddr: ipAddress,
-      vnp_CreateDate: new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)
+      vnp_IpAddr:    ipAddress,
+      vnp_CreateDate: createDate,
     };
+    // Lọc bỏ field null/undefined trước khi ký
+    vnp_Params = Object.fromEntries(
+      Object.entries(vnp_Params).filter(([_, v]) => v != null && v !== '')
+    );
 
-    // Build query string
-    const vnp_ParamsSorted = Object.keys(vnp_Params)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = vnp_Params[key];
-        return acc;
-      }, {});
+    // Sắp xếp tham số theo alphabet (bắt buộc của VNPay)
+    vnp_Params = sortObject(vnp_Params);
 
-    const queryString = Object.entries(vnp_ParamsSorted)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
-
+    // Tính chữ ký: dùng URLSearchParams (encodes spaces=+, :/= %3A%2F)
+    // → match với cách VNPay verify phía server (PHP urlencode style)
+    const signData = new URLSearchParams(vnp_Params).toString();
     const hmac = crypto.createHmac('sha512', hashSecret);
-    const signed = hmac.update(Buffer.from(queryString, 'utf-8')).digest('hex');
-    const vnp_SecureHash = signed;
+    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-    const paymentUrl = `${vnpayEndpoint}?${queryString}&vnp_SecureHash=${vnp_SecureHash}`;
+    // 🔍 DEBUG
+    console.log('\n=== VNPay DEBUG ===');
+    console.log('SecretKey length:', hashSecret.length);
+    console.log('SIGN DATA:', signData);
+    console.log('HASH:', signed);
+    console.log('===================\n');
+
+    // Build URL với cùng encoding
+    const urlParams = new URLSearchParams({ ...vnp_Params, vnp_SecureHash: signed });
+    const paymentUrl = vnpayEndpoint + '?' + urlParams.toString();
+
+    console.log('PAYMENT URL:', paymentUrl);
 
     return {
       success: true,
@@ -189,48 +219,40 @@ const vnpayGateway = {
       orderId,
       amount,
       paymentUrl,
-      secureHash: vnp_SecureHash
+      secureHash: signed
     };
   },
 
   verifyCallback: (callbackParams) => {
     const hashSecret = process.env.VNPAY_HASH_SECRET || 'hash_secret_test';
-    
-    // Extract secure hash
-    const vnp_SecureHash = callbackParams.vnp_SecureHash;
-    
-    // Remove secure hash from params and rebuild signature
-    const params = { ...callbackParams };
-    delete params.vnp_SecureHash;
 
-    const vnp_ParamsSorted = Object.keys(params)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = params[key];
-        return acc;
-      }, {});
+    const secureHash = callbackParams['vnp_SecureHash'];
 
-    const queryString = Object.entries(vnp_ParamsSorted)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
+    // Xoá vnp_SecureHash và vnp_SecureHashType trước khi tính lại
+    let params = { ...callbackParams };
+    delete params['vnp_SecureHash'];
+    delete params['vnp_SecureHashType'];
 
+    params = sortObject(params);
+
+    // Tính lại chữ ký — dùng qs.stringify encode:false giống bên initiate
+    const signData = qs.stringify(params, { encode: false });
     const hmac = crypto.createHmac('sha512', hashSecret);
-    const signed = hmac.update(Buffer.from(queryString, 'utf-8')).digest('hex');
+    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-    if (signed !== vnp_SecureHash) {
+    if (signed !== secureHash) {
       throw new Error('Invalid VNPay callback signature');
     }
 
-    // vnp_ResponseCode = '00' means success
+    // vnp_ResponseCode === '00' là thành công
     const isSuccess = callbackParams.vnp_ResponseCode === '00';
-
     return {
       success: isSuccess,
       method: 'vnpay',
       orderId: callbackParams.vnp_TxnRef,
       transactionNo: callbackParams.vnp_TransactionNo,
       amount: Number(callbackParams.vnp_Amount) / 100,
-      message: callbackParams.vnp_ResponseCode === '00' ? 'Thanh toán thành công' : 'Thanh toán thất bại',
+      message: isSuccess ? 'Thanh toán thành công' : 'Thanh toán thất bại',
       responseCode: callbackParams.vnp_ResponseCode
     };
   }

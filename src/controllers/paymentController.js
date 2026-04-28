@@ -42,7 +42,7 @@ const initiatePayment = asyncHandler(async (req, res) => {
     const paymentSession = await paymentService.initiate(method, {
       amount: order.total,
       orderId: order._id.toString(),
-      orderInfo: `Thanh toán đơn hàng ${order._id.toString().slice(-6).toUpperCase()}`
+      orderInfo: `Thanh toan don hang ${order._id.toString().slice(-6).toUpperCase()}`
     });
 
     // Store request ID for webhook matching (for Momo)
@@ -64,8 +64,10 @@ const initiatePayment = asyncHandler(async (req, res) => {
 // @route   POST /api/payment/callback
 // @access  Public (but requires valid signature)
 const paymentCallback = asyncHandler(async (req, res) => {
-  const { method } = req.query; // method=momo or method=vnpay via query string
-  const payload = req.body;
+  // VNPay gửi data qua query string (GET redirect), Momo gửi qua body (POST IPN)
+  const method = req.query.method;
+  const payload = { ...req.query, ...req.body };
+  delete payload.method; // bỏ field 'method' khỏi payload
 
   if (!method) {
     throw new AppError('method query param diperlukan', 400);
