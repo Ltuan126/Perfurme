@@ -2,11 +2,11 @@ export const products = [
   {
     id: 1,
     name: "Another 13",
-    price: 279.99,
+    price: 6990000,
     sizes: [
-      { label: '100ml', price: 279.99 },
-      { label: '50ml', price: 172.73 },
-      { label: '15ml', price: 74.38 },
+      { label: '100ml', price: 6990000 },
+      { label: '50ml', price: 4390000 },
+      { label: '15ml', price: 1890000 },
     ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PA13100__PRODUCT_01--IMG_1200--ANOTHER13-247547490.jpg",
@@ -15,11 +15,11 @@ export const products = [
   {
     id: 2,
     name: "Bergamote 22",
-    price: 259.99,
+    price: 6490000,
     sizes: [
-      { label: '100ml', price: 259.99 },
-      { label: '50ml', price: 172.73 },
-      { label: '15ml', price: 74.38 },
+      { label: '100ml', price: 6490000 },
+      { label: '50ml', price: 4390000 },
+      { label: '15ml', price: 1890000 },
     ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PB22100__PRODUCT_01--IMG_1200--BERGAMOTE22--1562685279.jpg",
@@ -28,11 +28,11 @@ export const products = [
   {
     id: 3,
     name: "Baie 19",
-    price: 243.80,
+    price: 5990000,
     sizes: [
-      { label: '100ml', price: 243.80 },
-      { label: '50ml', price: 172.73 },
-      { label: '15ml', price: 74.38 },
+      { label: '100ml', price: 5990000 },
+      { label: '50ml', price: 3990000 },
+      { label: '15ml', price: 1690000 },
     ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/J2K401R000__PRODUCT_01--IMG_1200--BAIE19-1695466996.jpg",
@@ -42,25 +42,25 @@ export const products = [
   {
     id: 4,
     name: "Rose 31",
-    price: 243.80,
+    price: 5990000,
     sizes: [
-      { label: '100ml', price: 243.80 },
-      { label: '50ml', price: 172.73 },
-      { label: '15ml', price: 74.38 },
+      { label: '100ml', price: 5990000 },
+      { label: '50ml', price: 3990000 },
+      { label: '15ml', price: 1690000 },
     ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PR31100__PRODUCT_01--IMG_1200--ROSE31--2101804434.jpg",
     description:
-      "The perfume’s aim is clear: to transform the famous Grasse rose, a symbol of voluptuousness and unqualified femininity, into an assertively virile fragrance that can be worn by anyone…",
+      "The perfume's aim is clear: to transform the famous Grasse rose, a symbol of voluptuousness and unqualified femininity, into an assertively virile fragrance that can be worn by anyone…",
   },
   {
     id: 5,
     name: "THÉ NOIR 29",
-    price: 243.80,
+    price: 5990000,
     sizes: [
-      { label: '100ml', price: 243.80 },
-      { label: '50ml', price: 172.73 },
-      { label: '15ml', price: 74.38 },
+      { label: '100ml', price: 5990000 },
+      { label: '50ml', price: 3990000 },
+      { label: '15ml', price: 1690000 },
     ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PT29100__PRODUCT_01--IMG_1200--THNOIR29--1804794449.jpg",
@@ -70,11 +70,11 @@ export const products = [
   {
     id: 6,
     name: "NEROLI 36",
-    price: 243.80,
+    price: 5990000,
     sizes: [
-      { label: '100ml', price: 243.80 },
-      { label: '50ml', price: 172.73 },
-      { label: '15ml', price: 74.38 },
+      { label: '100ml', price: 5990000 },
+      { label: '50ml', price: 3990000 },
+      { label: '15ml', price: 1690000 },
     ],
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PN36100__PRODUCT_01--IMG_1200--NEROLI36-678633412.jpg",
