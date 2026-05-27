@@ -88,7 +88,7 @@ export default function ProductDetail({ addToCart }) {
             </div>
           )}
           <div className="flex items-center gap-4 mt-3">
-            <span className="detail-price text-blue-600">${currentPrice.toFixed(2)}</span>
+            <span className="detail-price text-blue-600">{currentPrice.toLocaleString('vi-VN')}₫</span>
             <button className="detail-add" onClick={() => {
               const s = sizes && sizes.length > 0 ? (sizes.find(x => x.label === selectedSize) || sizes[0]) : { label: undefined, price: product.price };
               addToCart({ ...product, sizeLabel: s.label, price: s.price }, 1, { sizeLabel: s.label, price: s.price });

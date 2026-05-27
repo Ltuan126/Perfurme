@@ -12,7 +12,7 @@ export default function ProductCard({ product }) {
       )}
       <img src={product.image} alt={product.name} className="product-img" />
       <h3 className="product-name text-center">{product.name}</h3>
-      <p className="product-price">${Number(product.price).toFixed(2)}</p>
+      <p className="product-price">{Number(product.price).toLocaleString('vi-VN')}₫</p>
       <Link to={`/product/${product._id || product.id}`} className="product-btn w-full text-center">Xem chi tiết</Link>
     </div>
   );
