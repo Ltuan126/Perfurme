@@ -1,9 +1,8 @@
 // Loyalty utilities
-// Rule: 1 point per 10,000 VND spent (after discounts)
-// Tiers: Silver ≥ 500, Gold ≥ 1000, VIP ≥ 2000
+// Rule: 1 điểm mỗi 10.000₫ chi tiêu (sau giảm giá)
+// Hạng: Silver ≥ 500, Gold ≥ 1000, VIP ≥ 2000
 
 export const VND_PER_POINT = 10000;
-export const DEFAULT_EXCHANGE_RATE = 25000; // 1 USD ≈ 25,000 VND (configurable)
 
 export function computeTier(points = 0) {
   if (points >= 2000) return 'VIP';
@@ -12,10 +11,8 @@ export function computeTier(points = 0) {
   return 'None';
 }
 
-export function calcEstimatedPointsFromTotal(totalAmount, opts = {}) {
-  const { currency = 'USD', exchangeRate = DEFAULT_EXCHANGE_RATE } = opts;
-  // Convert total to VND if needed
-  const totalVND = currency === 'VND' ? totalAmount : totalAmount * exchangeRate;
+// Tổng tiền đầu vào luôn là VND
+export function calcEstimatedPointsFromTotal(totalVND) {
   const points = Math.floor(totalVND / VND_PER_POINT);
   return points;
 }
