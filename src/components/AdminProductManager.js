@@ -102,7 +102,7 @@ export default function AdminProductManager() {
             {products.map(p => (
               <tr key={p._id} className="hover:bg-blue-50 transition">
                 <td className="p-3 border font-semibold">{p.name}</td>
-                <td className="p-3 border">{p.price}</td>
+                <td className="p-3 border">{Number(p.price).toLocaleString('vi-VN')}₫</td>
                 <td className="p-3 border"><img src={p.image} alt={p.name} className="h-14 rounded shadow" /></td>
                 <td className="p-3 border">
                   <button onClick={() => handleEdit(p)} className="mr-2 text-blue-600 hover:text-blue-800 transition"><FaEdit /></button>

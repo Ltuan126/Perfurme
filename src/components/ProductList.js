@@ -80,9 +80,9 @@ export default function ProductList() {
       if (priceFilter !== 'all') {
         base = base.filter(p => {
           const price = parseFloat(p.price) || 0;
-          if (priceFilter === 'under100') return price < 100;
-          if (priceFilter === '100to200') return price >= 100 && price <= 200;
-          if (priceFilter === 'over200') return price > 200;
+          if (priceFilter === 'under2m') return price < 2000000;
+          if (priceFilter === '2mto5m') return price >= 2000000 && price <= 5000000;
+          if (priceFilter === 'over5m') return price > 5000000;
           return true;
         });
       }
@@ -136,9 +136,9 @@ export default function ProductList() {
             className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white shadow-sm transition-all"
           >
             <option value="all">Mọi mức giá</option>
-            <option value="under100">Dưới $100</option>
-            <option value="100to200">$100 - $200</option>
-            <option value="over200">Trên $200</option>
+            <option value="under2m">Dưới 2.000.000₫</option>
+            <option value="2mto5m">2.000.000₫ - 5.000.000₫</option>
+            <option value="over5m">Trên 5.000.000₫</option>
           </select>
 
           <select 
