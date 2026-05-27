@@ -42,7 +42,7 @@ export default function Cart({ items = [], onQtyChange, onRemove }) {
                         {item.name}
                         {item.sizeLabel && <span className="ml-2 text-xs px-2 py-[1px] rounded-full bg-slate-100 text-slate-700 border border-slate-200">{item.sizeLabel}</span>}
                       </td>
-                      <td className="p-3 border">${Number(item.price).toFixed(2)}</td>
+                      <td className="p-3 border">{Number(item.price).toLocaleString('vi-VN')}₫</td>
                       <td className="p-3 border">
                         <div className="flex items-center gap-2 justify-center">
                           <button
@@ -70,7 +70,7 @@ export default function Cart({ items = [], onQtyChange, onRemove }) {
                           </button>
                         </div>
                       </td>
-                      <td className="p-3 border font-semibold">${line.toFixed(2)}</td>
+                      <td className="p-3 border font-semibold">{line.toLocaleString('vi-VN')}₫</td>
                       <td className="p-3 border text-center">
                         <button onClick={() => onRemove && onRemove(key)} className="text-red-600 hover:text-red-700 font-medium">Xóa</button>
                       </td>
@@ -81,7 +81,7 @@ export default function Cart({ items = [], onQtyChange, onRemove }) {
             </table>
             <div className="flex justify-between items-center mt-4">
               <div className="text-slate-600">Tổng cộng:</div>
-              <div className="text-blue-700 font-bold text-lg">${total.toFixed(2)}</div>
+              <div className="text-blue-700 font-bold text-lg">{total.toLocaleString('vi-VN')}₫</div>
             </div>
             {!showCheckout && (
               <button onClick={() => setShowCheckout(true)} className="btn-primary w-full mt-4">
