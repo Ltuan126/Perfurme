@@ -14,6 +14,7 @@ import Quiz from './components/Quiz';
 import Profile from './components/Profile';
 import PaymentCallback from './components/PaymentCallback';
 import CheckoutForm from './components/CheckoutForm';
+import { useAuth } from './context/AuthContext';
 
 const routerBasename = (() => {
   const publicUrl = process.env.PUBLIC_URL || '';
@@ -25,6 +26,7 @@ const routerBasename = (() => {
 
 
 export default function App() {
+  const { user, username, isAdmin, loading, logout } = useAuth();
   const [cartItems, setCartItems] = useState(() => {
     try {
       const raw = localStorage.getItem('cart_items');
@@ -33,21 +35,6 @@ export default function App() {
       return [];
     }
   });
-  const [isAdmin, setIsAdmin] = useState(localStorage.getItem('user_role') === 'admin');
-  const [user, setUser] = useState(localStorage.getItem('user_login'));
-
-  const handleLogin = (username) => {
-    setUser(username);
-    setIsAdmin(localStorage.getItem('user_role') === 'admin');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_login');
-    localStorage.removeItem('user_role');
-    setUser(null);
-    setIsAdmin(false);
-  };
 
 
   // Helper to build a unique cart key including size label
@@ -101,14 +88,18 @@ export default function App() {
     setCartItems(prev => prev.filter(it => keyOf(it) !== key));
   };
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-slate-600">Đang khôi phục phiên đăng nhập...</div>;
+  }
+
   // Nếu chưa đăng nhập user thì chỉ cho vào trang đăng nhập/đăng ký
   if (!user) {
-    return <UserAuth onLogin={handleLogin} />;
+    return <UserAuth />;
   }
 
   return (
     <BrowserRouter basename={routerBasename}>
-      <Navbar cartCount={cartCount} isAdmin={isAdmin} onLogout={handleLogout} currentUser={user} />
+      <Navbar cartCount={cartCount} />
       <div className="main-container">
         <Routes>
           <Route path="/" element={<Home />} />

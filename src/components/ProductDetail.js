@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
 import API_BASE_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -150,6 +151,7 @@ export default function ProductDetail({ addToCart }) {
 
 // Q&A Section Component
 function QASection({ productId }) {
+  const { authFetch } = useAuth();
   const [qas, setQAs] = useState([]);
   const [totalQAs, setTotalQAs] = useState(0);
   const [page, setPage] = useState(1);
@@ -172,11 +174,14 @@ function QASection({ productId }) {
     e.preventDefault();
     if (!question.trim()) return;
     // Gửi câu hỏi, cần đăng nhập
-    await fetch(`${API_BASE_URL}/api/qas`, {
+    const res = await authFetch(`${API_BASE_URL}/api/qas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, question })
     });
+    if (!res.ok) {
+      return;
+    }
     setQuestion("");
     setPage(1);
     // Reload Q&A

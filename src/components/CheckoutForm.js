@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { calcEstimatedPointsFromTotal, addPoints } from '../utils/loyalty';
 import API_BASE_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function CheckoutForm({ cart, onOrderSuccess }) {
+  const { username, authFetch } = useAuth();
   const [form, setForm] = useState({ name: '', address: '', phone: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +40,7 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+      const res = await authFetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, cart, paymentMethod }),
@@ -51,7 +53,6 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
       if (paymentMethod === 'cod') {
         setSuccess(true);
         setForm({ name: '', address: '', phone: '' });
-        const username = localStorage.getItem('user_login');
         if (username && summary.estPoints > 0) {
           addPoints(username, summary.estPoints);
         }
@@ -59,7 +60,7 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
       } else {
         // Momo/VNPay: Initiate payment session
         setRedirecting(true);
-        const payRes = await fetch(`${API_BASE_URL}/api/payment/init`, {
+        const payRes = await authFetch(`${API_BASE_URL}/api/payment/init`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId, method: paymentMethod })

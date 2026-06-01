@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import API_BASE_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 const initialForm = {
   fullName: '',
@@ -11,6 +12,7 @@ const initialForm = {
 };
 
 export default function Profile() {
+  const { authFetch } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -22,16 +24,7 @@ export default function Profile() {
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      setLoading(false);
-      setError('Bạn chưa đăng nhập');
-      return;
-    }
-
-    fetch(`${API_BASE_URL}/api/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    authFetch(`${API_BASE_URL}/api/me`)
       .then(async (res) => {
         const payload = await res.json();
         if (!res.ok) {
@@ -56,7 +49,7 @@ export default function Profile() {
       })
       .catch((err) => setError(err.message || 'Không thể tải profile'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authFetch]);
 
   const onChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -67,19 +60,12 @@ export default function Profile() {
     setError('');
     setSuccess('');
 
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      setError('Bạn chưa đăng nhập');
-      return;
-    }
-
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/me`, {
+      const res = await authFetch(`${API_BASE_URL}/api/me`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(form)
       });

@@ -48,7 +48,8 @@ const corsOptions = {
     return callback(new Error('CORS origin not allowed'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
 
 if (process.env.NODE_ENV === 'production') {

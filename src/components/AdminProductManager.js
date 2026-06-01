@@ -2,19 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus, FaSave, FaTimes } from 'react-icons/fa';
 import API_BASE_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminProductManager() {
+  const { authFetch } = useAuth();
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: '', price: '', description: '', image: '' });
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products`)
+    authFetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(setProducts)
       .catch(() => setError('Không thể tải sản phẩm!'));
-  }, []);
+  }, [authFetch]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,18 +28,18 @@ export default function AdminProductManager() {
     setError('');
     try {
       if (editingId) {
-        const res = await fetch(`${API_BASE_URL}/api/products/${editingId}`, {
+        const res = await authFetch(`${API_BASE_URL}/api/products/${editingId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
         const updated = await res.json();
         setProducts(products.map(p => (p._id === editingId ? updated : p)));
         setEditingId(null);
       } else {
-        const res = await fetch(`${API_BASE_URL}/api/products`, {
+        const res = await authFetch(`${API_BASE_URL}/api/products`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
         const added = await res.json();
@@ -57,7 +59,7 @@ export default function AdminProductManager() {
   const handleDelete = async id => {
     if (!window.confirm('Bạn chắc chắn muốn xóa?')) return;
     try {
-      await fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } });
+      await authFetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE' });
       setProducts(products.filter(p => p._id !== id));
     } catch {
       setError('Không thể xóa sản phẩm!');

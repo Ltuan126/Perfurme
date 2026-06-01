@@ -60,6 +60,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['None', 'Silver', 'Gold', 'VIP'],
     default: 'None'
+  },
+  tokenVersion: {
+    type: Number,
+    default: 0,
+    min: 0
   }
 }, {
   timestamps: true

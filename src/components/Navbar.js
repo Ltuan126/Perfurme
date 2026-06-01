@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiShoppingCart, FiUser, FiLogOut, FiChevronDown } from "react-icons/fi";
 import API_BASE_URL from '../config/api';
 import { loadUserLoyalty } from '../utils/loyalty';
+import { useAuth } from '../context/AuthContext';
 
 
-export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
+export default function Navbar({ cartCount }) {
+  const { user, username: currentUser, isAdmin, logout, authFetch } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -52,25 +54,23 @@ export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
   }, [userMenuOpen]);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
     if (!currentUser) return;
-    if (token) {
-      fetch(`${API_BASE_URL}/api/me`, { headers: { Authorization: 'Bearer ' + token } })
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (data?.data) {
-            setLoyalty({ points: data.data.points || 0, tier: data.data.tier || 'None' });
-          }
-        })
-        .catch(() => {
-          const l = loadUserLoyalty(currentUser);
-          setLoyalty(l);
-        });
-    } else {
+    authFetch(`${API_BASE_URL}/api/me`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.data) {
+          setLoyalty({ points: data.data.points || 0, tier: data.data.tier || 'None' });
+        }
+      })
+      .catch(() => {
+        const l = loadUserLoyalty(currentUser);
+        setLoyalty(l);
+      });
+    if (!user) {
       const l = loadUserLoyalty(currentUser);
       setLoyalty(l);
     }
-  }, [currentUser]);
+  }, [currentUser, authFetch, user]);
 
   return (
     <nav className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-700/95 shadow-md border-b border-white/20 relative z-40">
@@ -214,7 +214,7 @@ export default function Navbar({ cartCount, isAdmin, onLogout, currentUser }) {
                       </>
                     )}
                     <li>
-                      <button onClick={onLogout} className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-red-50 text-sm text-red-600">
+                        <button onClick={logout} className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-red-50 text-sm text-red-600">
                         <FiLogOut /> Logout
                       </button>
                     </li>

@@ -4,6 +4,76 @@ const User = require('../models/User');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || JWT_SECRET;
+const ACCESS_TOKEN_TTL = JWT_EXPIRES_IN;
+const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_EXPIRES_IN || '30d';
+
+function parseCookies(req) {
+    const header = req.headers.cookie || '';
+    return header.split(';').reduce((acc, part) => {
+        const index = part.indexOf('=');
+        if (index === -1) return acc;
+        const key = part.slice(0, index).trim();
+        const value = part.slice(index + 1).trim();
+        if (key) acc[key] = decodeURIComponent(value);
+        return acc;
+    }, {});
+}
+
+function cookieOptions() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    return {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24 * 30
+    };
+}
+
+function signAccessToken(user) {
+    return jwt.sign(
+        { sub: user._id, username: user.username, role: user.role },
+        JWT_SECRET,
+        { expiresIn: ACCESS_TOKEN_TTL }
+    );
+}
+
+function signRefreshToken(user) {
+    return jwt.sign(
+        { sub: user._id, ver: user.tokenVersion || 0 },
+        REFRESH_TOKEN_SECRET,
+        { expiresIn: REFRESH_TOKEN_TTL }
+    );
+}
+
+function attachRefreshCookie(res, refreshToken) {
+    res.cookie('refresh_token', refreshToken, cookieOptions());
+}
+
+function clearRefreshCookie(res) {
+    res.clearCookie('refresh_token', {
+        ...cookieOptions(),
+        maxAge: undefined
+    });
+}
+
+function buildUserResponse(user) {
+    return {
+        username: user.username,
+        role: user.role,
+        points: user.points,
+        tier: user.tier
+    };
+}
+
+function issueSession(res, user) {
+    const accessToken = signAccessToken(user);
+    const refreshToken = signRefreshToken(user);
+    attachRefreshCookie(res, refreshToken);
+    return { accessToken, user: buildUserResponse(user) };
+}
+
 // @desc    Đăng ký tài khoản
 // @route   POST /api/auth/register
 // @access  Public
@@ -19,18 +89,13 @@ const register = asyncHandler(async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({ username, passwordHash });
 
-    // Auto-issue token after registration
-    const token = jwt.sign(
-        { sub: user._id, username: user.username, role: user.role },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-    );
+    const session = issueSession(res, user);
 
     res.status(201).json({
         success: true,
         message: 'Đăng ký thành công',
-        token,
-        user: { username: user.username, role: user.role }
+        ...session,
+        token: session.accessToken
     });
 });
 
@@ -50,17 +115,69 @@ const login = asyncHandler(async (req, res) => {
         throw new AppError('Sai tài khoản hoặc mật khẩu', 401);
     }
 
-    const token = jwt.sign(
-        { sub: user._id, username: user.username, role: user.role },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-    );
+    const session = issueSession(res, user);
 
     res.json({
         success: true,
-        token,
-        user: { username: user.username, role: user.role }
+        ...session,
+        token: session.accessToken
     });
+});
+
+// @desc    Refresh access token using HttpOnly cookie
+// @route   POST /api/auth/refresh
+// @access  Public (cookie-based)
+const refresh = asyncHandler(async (req, res) => {
+    const cookies = parseCookies(req);
+    const refreshToken = cookies.refresh_token;
+
+    if (!refreshToken) {
+        throw new AppError('Thiếu refresh token', 401);
+    }
+
+    let payload;
+    try {
+        payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    } catch {
+        throw new AppError('Refresh token không hợp lệ hoặc đã hết hạn', 401);
+    }
+
+    const user = await User.findById(payload.sub);
+    if (!user || (user.tokenVersion || 0) !== Number(payload.ver || 0)) {
+        throw new AppError('Refresh token không còn hiệu lực', 401);
+    }
+
+    const session = issueSession(res, user);
+
+    res.json({
+        success: true,
+        ...session,
+        token: session.accessToken
+    });
+});
+
+// @desc    Logout current session
+// @route   POST /api/auth/logout
+// @access  Public (cookie-based)
+const logout = asyncHandler(async (req, res) => {
+    const cookies = parseCookies(req);
+    const refreshToken = cookies.refresh_token;
+
+    if (refreshToken) {
+        try {
+            const payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+            const user = await User.findById(payload.sub);
+            if (user) {
+                user.tokenVersion = (user.tokenVersion || 0) + 1;
+                await user.save();
+            }
+        } catch {
+            // Ignore invalid token on logout and just clear cookie.
+        }
+    }
+
+    clearRefreshCookie(res);
+    res.json({ success: true, message: 'Đã đăng xuất' });
 });
 
 // @desc    Lấy thông tin user hiện tại
@@ -132,4 +249,4 @@ const updateMe = asyncHandler(async (req, res) => {
     });
 });
 
-module.exports = { register, login, getMe, updateMe };
+module.exports = { register, login, refresh, logout, getMe, updateMe };

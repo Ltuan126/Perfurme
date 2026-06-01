@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import API_BASE_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -12,6 +13,7 @@ const STATUS_COLORS = {
 const STATUS_FLOW = ['pending', 'confirmed', 'shipped', 'completed'];
 
 export default function AdminOrders() {
+  const { authFetch } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -20,11 +22,11 @@ export default function AdminOrders() {
   const [editStatus, setEditStatus] = useState({});
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/orders`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') } })
+    authFetch(`${API_BASE_URL}/api/orders`)
       .then(res => res.json())
       .then(data => { setOrders(data); setLoading(false); })
       .catch(() => { setError('Không thể tải đơn hàng!'); setLoading(false); });
-  }, []);
+  }, [authFetch]);
 
   const filtered = useMemo(() => {
     if (filter === 'all') return orders;
@@ -40,9 +42,9 @@ export default function AdminOrders() {
     if (!newStatus || newStatus === order.status) return;
     setUpdatingId(order._id);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders/${order._id}`, {
+      const res = await authFetch(`${API_BASE_URL}/api/orders/${order._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
       const updated = await res.json();

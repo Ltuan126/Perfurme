@@ -45,7 +45,7 @@ export default function About() {
             <li>Danh sách, chi tiết sản phẩm; tìm kiếm cơ bản.</li>
             <li>Giỏ hàng, đặt hàng COD (đơn hàng lưu DB).</li>
             <li>Trang quản trị: thêm/sửa/xóa sản phẩm.</li>
-            <li>Đăng nhập/đăng ký người dùng (localStorage).</li>
+            <li>Đăng nhập/đăng ký người dùng với access token trong memory và refresh token HttpOnly cookie.</li>
             <li>UI hiện đại với Tailwind, responsive.</li>
           </ul>
         </div>

@@ -2,8 +2,10 @@
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 import React, { useState, useMemo } from 'react';
 import API_BASE_URL from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
-export default function UserAuth({ onLogin }) {
+export default function UserAuth() {
+  const { login } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,28 +34,22 @@ export default function UserAuth({ onLogin }) {
         const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ username, password })
         });
         const data = await res.json();
         if (!res.ok) return setError(data.message || 'Đăng ký thất bại');
-        // Auto login sau đăng ký
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user_login', data.user.username);
-        localStorage.setItem('user_role', data.user.role);
-        onLogin(data.user.username);
+        login({ accessToken: data.accessToken || data.token, user: data.user });
       } else {
         const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ username, password })
         });
         const data = await res.json();
         if (!res.ok) return setError(data.message || 'Đăng nhập thất bại');
-        // Lưu token & thông tin user
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user_login', data.user.username);
-        localStorage.setItem('user_role', data.user.role);
-        onLogin(data.user.username);
+        login({ accessToken: data.accessToken || data.token, user: data.user });
       }
     } catch (err) {
       setError('Không kết nối được máy chủ');
