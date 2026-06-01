@@ -1,6 +1,6 @@
 # Perfume Shop - MERN Stack
 
-A fullstack e-commerce web application built with the MERN stack, featuring authentication (JWT), admin dashboard, order management, and interactive user features such as reviews and Q&A. Designed as a practical project for learning real-world architecture and deployment.
+A fullstack e-commerce web application built with the MERN stack, featuring authentication with in-memory access tokens plus HttpOnly refresh cookies, admin dashboard, order management, and interactive user features such as reviews and Q&A. Designed as a practical project for learning real-world architecture and deployment.
 
 ## 🚀 Live Demo
 - **Frontend**: https://elegancefragrance.vercel.app
@@ -58,14 +58,19 @@ Note:
 - `package.json` is configured with a proxy to the backend at `http://localhost:5000` for calling `/api/*` from the frontend during development.
 
 ## 🔐 Authentication
-The system has migrated to utilizing JWT.
+The system uses JWT access tokens plus HttpOnly refresh cookies.
 
 Basic Flow:
 1. Register: `POST /api/auth/register` body `{ username, password }`.
-2. Login: `POST /api/auth/login` returns `{ token, user: { username, role } }`.
-3. Save `token` on the frontend (current demo uses localStorage: `auth_token`).
-4. Call protected/admin APIs by adding header:
-   `Authorization: Bearer <token>`
+2. Login: `POST /api/auth/login` returns an access token and sets a refresh cookie.
+3. The frontend keeps the access token in memory only.
+4. When the app reloads or the access token expires, the frontend calls `POST /api/auth/refresh` with credentials included.
+5. Call protected/admin APIs by adding header:
+  `Authorization: Bearer <accessToken>`
+
+Frontend note:
+- Requests that need auth must send `credentials: 'include'` so the refresh cookie is available.
+- The app now uses a shared auth context plus an `authFetch` helper.
 
 Protected routes (requires admin + JWT):
 - `POST /api/products`
@@ -73,6 +78,10 @@ Protected routes (requires admin + JWT):
 - `DELETE /api/products/:id`
 - `GET /api/orders`
 - `PUT /api/orders/:id`
+- `GET /api/me`
+- `PUT /api/me`
+- `POST /api/qas`
+- `PUT /api/qas/:id/answer`
 
 ## 📂 Project Structure
 ```text
