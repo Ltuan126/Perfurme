@@ -13,7 +13,7 @@ export default function PaymentCallback() {
     const checkPaymentStatus = async () => {
       try {
         // Get order ID from URL or stored
-        let ordId = searchParams.get('orderId') || localStorage.getItem('pending_order_id');
+        let ordId = searchParams.get('orderId');
         
         if (!ordId) {
           setStatus('failed');
@@ -38,7 +38,6 @@ export default function PaymentCallback() {
         if (paymentData.paymentStatus === 'paid') {
           setStatus('success');
           setMessage(`✅ Thanh toán thành công! Đơn hàng của bạn đã được khởi tạo.`);
-          localStorage.removeItem('pending_order_id');
           
           // Redirect to home after 3 seconds
           setTimeout(() => {

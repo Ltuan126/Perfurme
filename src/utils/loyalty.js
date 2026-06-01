@@ -18,13 +18,11 @@ export function calcEstimatedPointsFromTotal(totalVND) {
 }
 
 // Local persistence keyed by username
-function keyPoints(username) { return `loyalty_points_${username}`; }
-function keyTier(username) { return `loyalty_tier_${username}`; }
+const loyaltyMemory = new Map();
 
 export function loadUserLoyalty(username) {
   if (!username) return { points: 0, tier: 'None' };
-  const raw = localStorage.getItem(keyPoints(username));
-  const points = raw ? parseInt(raw, 10) || 0 : 0;
+  const points = loyaltyMemory.get(username)?.points || 0;
   const tier = computeTier(points);
   return { points, tier };
 }
@@ -33,17 +31,15 @@ export function addPoints(username, deltaPoints) {
   if (!username || !Number.isFinite(deltaPoints) || deltaPoints <= 0) return loadUserLoyalty(username);
   const current = loadUserLoyalty(username).points;
   const next = current + Math.floor(deltaPoints);
-  localStorage.setItem(keyPoints(username), String(next));
   const tier = computeTier(next);
-  localStorage.setItem(keyTier(username), tier);
+  loyaltyMemory.set(username, { points: next, tier });
   return { points: next, tier };
 }
 
 export function setPoints(username, points) {
   if (!username) return { points: 0, tier: 'None' };
   const p = Math.max(0, Math.floor(points || 0));
-  localStorage.setItem(keyPoints(username), String(p));
   const tier = computeTier(p);
-  localStorage.setItem(keyTier(username), tier);
+  loyaltyMemory.set(username, { points: p, tier });
   return { points: p, tier };
 }
