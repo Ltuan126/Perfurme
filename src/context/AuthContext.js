@@ -93,10 +93,14 @@ export function AuthProvider({ children }) {
 
     const refreshed = await refreshSession();
     if (!refreshed?.accessToken) {
+      clearSession();
       return response;
     }
 
     response = await doFetch(refreshed.accessToken);
+    if (response.status === 401) {
+      clearSession();
+    }
     return response;
   }, [accessToken, refreshSession]);
 
