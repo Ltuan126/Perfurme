@@ -67,7 +67,7 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: {
-            values: ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'],
+            values: ['pending', 'confirmed', 'shipped', 'completed', 'canceled'],
             message: 'Trạng thái "{VALUE}" không hợp lệ'
         },
         default: 'pending',
