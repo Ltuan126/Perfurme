@@ -9,7 +9,7 @@ const paymentService = require('../services/paymentService');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 
 function calcEarnedPoints(amount) {
-  return Math.floor((amount || 0) / 10);
+  return Math.floor((amount || 0) / 10000);
 }
 
 function nextTier(points) {

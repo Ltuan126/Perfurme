@@ -6,7 +6,7 @@ const paymentService = require('../services/paymentService');
 // --- Helpers ---
 
 function calcEarnedPoints(amount) {
-    return Math.floor((amount || 0) / 10);
+    return Math.floor((amount || 0) / 10000);
 }
 
 function nextTier(points) {
@@ -47,7 +47,7 @@ const createOrder = asyncHandler(async (req, res) => {
         const minisTotal = cart
             .filter(i => isMini(i.name))
             .reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-        discount += Math.round(minisTotal * 0.10 * 100) / 100;
+        discount += Math.round(minisTotal * 0.10);
     }
     const total = Math.max(0, subtotal - discount);
 
@@ -59,14 +59,14 @@ const createOrder = asyncHandler(async (req, res) => {
         subtotal,
         discount,
         total,
-        username: body.username,
+        username: req.user?.username,
         paymentMethod,
         paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending'
     });
 
     // Award loyalty points immediately for COD only
-    if (body.username && paymentMethod === 'cod') {
-        const user = await User.findOne({ username: body.username });
+    if (req.user?.username && paymentMethod === 'cod') {
+        const user = await User.findOne({ username: req.user.username });
         if (user) {
             const earned = calcEarnedPoints(total);
             const newPoints = (user.points || 0) + earned;
