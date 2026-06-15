@@ -8,8 +8,8 @@ const {
     updateOrder
 } = require('../controllers/orderController');
 
-// Public: create COD order
-router.post('/', validateOrder, createOrder);
+// Public: create COD order (but auth is required to track user and loyalty)
+router.post('/', authRequired, validateOrder, createOrder);
 
 // Admin-only routes
 router.get('/', authRequired, requireRole('admin'), getOrders);
