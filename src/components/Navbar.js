@@ -278,7 +278,7 @@ export default function Navbar({ cartCount }) {
                   Profile
                 </Link>
               </div>
-              <button onClick={() => { setIsOpen(false); onLogout && onLogout(); }} className="px-4 py-2 rounded-full bg-white/15 text-white hover:bg-white/25 border border-white/25 text-sm">
+              <button onClick={() => { setIsOpen(false); logout(); }} className="px-4 py-2 rounded-full bg-white/15 text-white hover:bg-white/25 border border-white/25 text-sm">
                 Logout
               </button>
             </li>
