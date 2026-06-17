@@ -92,11 +92,6 @@ export default function App() {
     return <div className="min-h-screen flex items-center justify-center text-slate-600">Đang khôi phục phiên đăng nhập...</div>;
   }
 
-  // Nếu chưa đăng nhập user thì chỉ cho vào trang đăng nhập/đăng ký
-  if (!user) {
-    return <UserAuth />;
-  }
-
   return (
     <BrowserRouter basename={routerBasename}>
       <Navbar cartCount={cartCount} />
@@ -107,13 +102,14 @@ export default function App() {
           <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} />} />
           <Route path="/cart" element={<Cart items={cartItems} onQtyChange={updateCartQty} onRemove={removeFromCart} />} />
           <Route path="/quiz" element={<Quiz />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/payment/callback" element={<PaymentCallback />} />
-          <Route path="/checkout" element={<CheckoutForm cart={cartItems} onOrderSuccess={() => setCartItems([])} />} />
+          <Route path="/checkout" element={user ? <CheckoutForm cart={cartItems} onOrderSuccess={() => setCartItems([])} /> : <Navigate to="/login" />} />
           <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <Navigate to="/" />} />
           <Route path="/admin/orders" element={isAdmin ? <AdminOrders /> : <Navigate to="/" />} />
+          <Route path="/login" element={!user ? <UserAuth /> : <Navigate to="/" />} />
         </Routes>
       </div>
     </BrowserRouter>
