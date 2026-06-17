@@ -223,7 +223,7 @@ export default function Navbar({ cartCount }) {
               )}
             </div>
           ) : (
-            <Link to="/" className="text-white/90 hover:text-white text-sm">Sign in</Link>
+            <Link to="/login" className="text-white/90 hover:text-white text-sm">Sign in</Link>
           )}
         </div>
       </div>
@@ -281,6 +281,13 @@ export default function Navbar({ cartCount }) {
               <button onClick={() => { setIsOpen(false); logout(); }} className="px-4 py-2 rounded-full bg-white/15 text-white hover:bg-white/25 border border-white/25 text-sm">
                 Logout
               </button>
+            </li>
+          )}
+          {!currentUser && (
+            <li className="pt-2">
+              <Link to="/login" className="px-4 py-2 rounded-full bg-white/10 text-white hover:bg-white/20 border border-white/25 text-sm inline-block" onClick={() => setIsOpen(false)}>
+                Sign in
+              </Link>
             </li>
           )}
         </ul>
