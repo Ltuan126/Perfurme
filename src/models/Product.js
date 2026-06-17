@@ -13,6 +13,12 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Giá sản phẩm là bắt buộc'],
     min: [0, 'Giá không thể âm']
   },
+  sizes: [
+    {
+      label: { type: String, trim: true },
+      price: { type: Number, min: 0 }
+    }
+  ],
   description: {
     type: String,
     trim: true,
