@@ -1,11 +1,15 @@
 
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 import React, { useState, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function UserAuth() {
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const redirectMessage = location.state?.message;
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -51,6 +55,9 @@ export default function UserAuth() {
         if (!res.ok) return setError(data.message || 'Đăng nhập thất bại');
         login({ accessToken: data.accessToken || data.token, user: data.user });
       }
+      const from = location.state?.from || '/';
+      const state = location.state?.showCheckout ? { showCheckout: true } : {};
+      navigate(from, { state, replace: true });
     } catch (err) {
       setError('Không kết nối được máy chủ');
     }
@@ -103,6 +110,11 @@ export default function UserAuth() {
               </h2>
               <p className="text-white/50 text-xs mt-1">{isRegister ? 'Đăng ký để bắt đầu hành trình hương thơm' : 'Đăng nhập để tiếp tục trải nghiệm'}</p>
             </div>
+            {redirectMessage && (
+              <div className="text-cyan-200 text-xs font-semibold px-4 py-3 rounded-2xl bg-cyan-500/10 border border-cyan-400/20 text-center leading-relaxed">
+                {redirectMessage}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-3">
                 <div className="relative">
