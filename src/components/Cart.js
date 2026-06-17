@@ -1,10 +1,18 @@
 
 
 import React, { useMemo, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import CheckoutForm from './CheckoutForm';
+import { useAuth } from '../context/AuthContext';
 
 export default function Cart({ items = [], onQtyChange, onRemove }) {
-  const [showCheckout, setShowCheckout] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [showCheckout, setShowCheckout] = useState(() => {
+    return location.state?.showCheckout || false;
+  });
 
   const total = useMemo(() => items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0), [items]);
 
@@ -84,7 +92,22 @@ export default function Cart({ items = [], onQtyChange, onRemove }) {
               <div className="text-blue-700 font-bold text-lg">{total.toLocaleString('vi-VN')}₫</div>
             </div>
             {!showCheckout && (
-              <button onClick={() => setShowCheckout(true)} className="btn-primary w-full mt-4">
+              <button
+                onClick={() => {
+                  if (!user) {
+                    navigate('/login', {
+                      state: {
+                        from: '/cart',
+                        showCheckout: true,
+                        message: 'Vui lòng đăng ký hoặc đăng nhập để theo dõi trạng thái đơn hàng.'
+                      }
+                    });
+                  } else {
+                    setShowCheckout(true);
+                  }
+                }}
+                className="btn-primary w-full mt-4"
+              >
                 Đặt hàng COD
               </button>
             )}
