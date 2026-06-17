@@ -15,6 +15,11 @@ const orderItemSchema = new mongoose.Schema({
         type: Number,
         default: 1,
         min: [1, 'Số lượng tối thiểu là 1']
+    },
+    sizeLabel: {
+        type: String,
+        trim: true,
+        default: null
     }
 }, { _id: false });
 
