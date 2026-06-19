@@ -1,5 +1,7 @@
 /* ════════════════════════════════════════════
    UserAuth – Premium Auth Page Styles
+   Color palette: blue-600 (#2563eb) / cyan-500 (#06b6d4) / blue-700 (#1d4ed8)
+   Matches the homepage hero gradient
    ════════════════════════════════════════════ */
 
 /* ── PAGE WRAPPER ── */
@@ -25,7 +27,7 @@
   display: flex;
   align-items: flex-end;
   overflow: hidden;
-  background: #070b14;
+  background: #070d1a;
 }
 
 .auth-hero__img {
@@ -34,8 +36,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.55;
-  filter: brightness(0.7) saturate(1.1);
+  opacity: 0.45;
+  filter: brightness(0.6) saturate(1.2) hue-rotate(10deg);
 }
 
 .auth-hero__overlay {
@@ -43,12 +45,12 @@
   inset: 0;
   background:
     linear-gradient(180deg,
-      rgba(7, 11, 20, 0.35) 0%,
-      rgba(7, 11, 20, 0.1) 40%,
-      rgba(7, 11, 20, 0.65) 70%,
-      rgba(7, 11, 20, 0.95) 100%),
+      rgba(7, 13, 26, 0.4) 0%,
+      rgba(7, 13, 26, 0.1) 40%,
+      rgba(7, 13, 26, 0.65) 70%,
+      rgba(7, 13, 26, 0.95) 100%),
     linear-gradient(135deg,
-      rgba(212, 175, 55, 0.08) 0%,
+      rgba(6, 182, 212, 0.1) 0%,
       transparent 60%);
 }
 
@@ -63,7 +65,7 @@
 .auth-particle {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.5) 0%, transparent 70%);
   animation: authFloat linear infinite;
 }
 
@@ -92,9 +94,9 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #d4af37;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   backdrop-filter: blur(8px);
   margin-bottom: 1.25rem;
 }
@@ -110,7 +112,7 @@
 
 .auth-hero__title span {
   font-weight: 300;
-  background: linear-gradient(135deg, #d4af37, #f5deb3, #d4af37);
+  background: linear-gradient(135deg, #38bdf8, #a5f3fc, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -144,7 +146,7 @@
 
 .auth-hero__feat:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(212, 175, 55, 0.2);
+  border-color: rgba(56, 189, 248, 0.25);
   transform: translateX(6px);
 }
 
@@ -157,7 +159,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(37, 99, 235, 0.15);
 }
 
 .auth-hero__feat strong {
@@ -183,7 +185,8 @@
   justify-content: center;
   padding: 2rem;
   background:
-    radial-gradient(ellipse at 30% 0%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 0%, rgba(37, 99, 235, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 100%, rgba(6, 182, 212, 0.04) 0%, transparent 50%),
     #0a0f1c;
   overflow-y: auto;
 }
@@ -205,17 +208,17 @@
   align-items: center;
   justify-content: center;
   font-size: 26px;
-  color: #d4af37;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.05) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #38bdf8;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   margin-bottom: 1.25rem;
-  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.1);
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
   animation: authPulseAvatar 3s ease-in-out infinite;
 }
 
 @keyframes authPulseAvatar {
-  0%, 100% { box-shadow: 0 8px 32px rgba(212, 175, 55, 0.1); }
-  50%      { box-shadow: 0 8px 40px rgba(212, 175, 55, 0.22); }
+  0%, 100% { box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15); }
+  50%      { box-shadow: 0 8px 40px rgba(56, 189, 248, 0.28); }
 }
 
 /* ── titles ── */
@@ -242,9 +245,9 @@
   font-size: 12.5px;
   font-weight: 600;
   text-align: center;
-  color: #d4af37;
-  background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #38bdf8;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.18);
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
@@ -316,14 +319,14 @@
 }
 
 .auth-input:focus {
-  border-color: rgba(212, 175, 55, 0.4);
+  border-color: rgba(56, 189, 248, 0.45);
   background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .auth-input:focus + .auth-input-icon,
 .auth-input-wrap:focus-within .auth-input-icon {
-  color: #d4af37;
+  color: #38bdf8;
 }
 
 /* password toggle */
@@ -402,7 +405,7 @@
   font-size: 14.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #0a0f1c;
+  color: #fff;
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -411,19 +414,19 @@
   justify-content: center;
   gap: 10px;
   font-family: inherit;
-  background: linear-gradient(135deg, #d4af37 0%, #f5deb3 50%, #d4af37 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #06b6d4 50%, #2563eb 100%);
   background-size: 200% 200%;
   box-shadow:
-    0 8px 24px rgba(212, 175, 55, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 8px 24px rgba(37, 99, 235, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transition: transform 0.25s, box-shadow 0.25s, background-position 0.5s;
 }
 
 .auth-submit:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow:
-    0 14px 36px rgba(212, 175, 55, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 14px 36px rgba(37, 99, 235, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   background-position: 100% 100%;
 }
 
@@ -450,8 +453,8 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2.5px solid rgba(10, 15, 28, 0.2);
-  border-top-color: #0a0f1c;
+  border: 2.5px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
   border-radius: 50%;
   animation: authSpin 0.7s linear infinite;
 }
@@ -473,7 +476,7 @@
 .auth-toggle__btn {
   background: none;
   border: none;
-  color: #d4af37;
+  color: #38bdf8;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -483,7 +486,7 @@
 }
 
 .auth-toggle__btn:hover {
-  color: #f5deb3;
+  color: #7dd3fc;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
