@@ -3,7 +3,7 @@
 A fullstack e-commerce web application built with the MERN stack, featuring authentication with in-memory access tokens plus HttpOnly refresh cookies, admin dashboard, order management, and interactive user features such as reviews and Q&A. Designed as a practical project for learning real-world architecture and deployment.
 
 ## 🚀 Live Demo
-- **Frontend**: https://elegancefragrance.vercel.app (Auto-deployed via Vercel)
+- **Frontend**: https://elegancefragrance.vercel.app (Auto-deployed via Vercel GitHub Integration)
 - **Backend**: Running on Render.
 
 ## ✨ Features
