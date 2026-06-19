@@ -1,41 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaShieldAlt, FaArrowRight } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
 import './UserAuth.css';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
-
-/* ───────── floating‑particle component ───────── */
-function Particles({ count = 30 }) {
-  const dots = useMemo(() =>
-    Array.from({ length: count }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 2 + Math.random() * 4,
-      dur: 12 + Math.random() * 20,
-      delay: Math.random() * -20,
-    })), [count]);
-
-  return (
-    <div className="auth-particles">
-      {dots.map(d => (
-        <span
-          key={d.id}
-          className="auth-particle"
-          style={{
-            left: `${d.x}%`,
-            top: `${d.y}%`,
-            width: d.size,
-            height: d.size,
-            animationDuration: `${d.dur}s`,
-            animationDelay: `${d.delay}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 /* ───────── strength helpers ───────── */
 const STRENGTH_LABELS = ['', 'Yếu', 'Trung bình', 'Khá', 'Mạnh', 'Rất mạnh'];
@@ -58,7 +26,6 @@ export default function UserAuth() {
 
   useEffect(() => { setMounted(true); }, []);
 
-  /* password‑strength meter (0‑5) */
   const strength = useMemo(() => {
     if (!password) return 0;
     let s = 0;
@@ -70,7 +37,6 @@ export default function UserAuth() {
     return s;
   }, [password]);
 
-  /* submit handler */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -109,57 +75,32 @@ export default function UserAuth() {
 
   return (
     <div className={`auth-page ${mounted ? 'auth-page--visible' : ''}`}>
-      {/* ── LEFT HERO ── */}
+      {/* ── LEFT: IMAGE ── */}
       <div className="auth-hero">
         <img
           src={`${process.env.PUBLIC_URL}/auth-hero.png`}
-          alt=""
+          alt="Perfume"
           className="auth-hero__img"
         />
         <div className="auth-hero__overlay" />
-        <Particles count={25} />
-
-        <div className="auth-hero__content">
-          <div className="auth-hero__badge">✦ Luxury Fragrance</div>
-          <h1 className="auth-hero__title">
-            Perfume<br /><span>Experience</span>
-          </h1>
-          <p className="auth-hero__desc">
-            Khám phá bộ sưu tập hương thơm tinh tế, tuyển chọn kỹ lưỡng từ những thương hiệu hàng đầu thế giới.
+        <div className="auth-hero__brand">
+          <div className="auth-hero__brand-name">PERFUME</div>
+          <div className="auth-hero__brand-sub">EXPERIENCE — VIETNAM</div>
+          <p className="auth-hero__brand-tagline">
+            Crafted with passion.<br />
+            Premium fragrances.<br />
+            Made for those who feel deeper.
           </p>
-
-          <div className="auth-hero__features">
-            <div className="auth-hero__feat">
-              <div className="auth-hero__feat-icon">🌸</div>
-              <div>
-                <strong>Niche & Limited</strong>
-                <small>Các mẫu hương độc quyền</small>
-              </div>
-            </div>
-            <div className="auth-hero__feat">
-              <div className="auth-hero__feat-icon">⚡</div>
-              <div>
-                <strong>Đặt hàng nhanh</strong>
-                <small>Thanh toán an toàn</small>
-              </div>
-            </div>
-            <div className="auth-hero__feat">
-              <div className="auth-hero__feat-icon">🔒</div>
-              <div>
-                <strong>Bảo mật cao</strong>
-                <small>Mã hoá JWT tiêu chuẩn</small>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* ── RIGHT FORM ── */}
+      {/* ── RIGHT: FORM ── */}
       <div className="auth-form-wrapper">
         <div className="auth-card">
-          {/* avatar icon */}
-          <div className="auth-card__avatar">
-            <FaShieldAlt />
+          {/* Brand header */}
+          <div className="auth-brand-header">
+            <div className="auth-brand-header__name">PERFUME</div>
+            <div className="auth-brand-header__sub">EXPERIENCE — VIETNAM</div>
           </div>
 
           <h2 className="auth-card__title">
@@ -167,11 +108,10 @@ export default function UserAuth() {
           </h2>
           <p className="auth-card__subtitle">
             {isRegister
-              ? 'Đăng ký để trải nghiệm đầy đủ dịch vụ'
+              ? 'Đăng ký để trải nghiệm đầy đủ dịch vụ.'
               : 'Chào mừng trở lại! Vui lòng đăng nhập.'}
           </p>
 
-          {/* redirect message */}
           {redirectMessage && (
             <div className="auth-redirect-msg">{redirectMessage}</div>
           )}
@@ -185,7 +125,7 @@ export default function UserAuth() {
                 <input
                   id="auth-user"
                   type="text"
-                  placeholder="Nhập tên đăng nhập"
+                  placeholder="Tên đăng nhập"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="auth-input"
@@ -202,7 +142,7 @@ export default function UserAuth() {
                 <input
                   id="auth-pass"
                   type={showPass ? 'text' : 'password'}
-                  placeholder="Nhập mật khẩu"
+                  placeholder="Mật khẩu"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="auth-input"
@@ -219,7 +159,7 @@ export default function UserAuth() {
               </div>
             </div>
 
-            {/* Confirm Password (register) */}
+            {/* Confirm Password */}
             {isRegister && (
               <div className="auth-field auth-field--animated">
                 <label className="auth-label" htmlFor="auth-confirm">Xác nhận mật khẩu</label>
@@ -237,7 +177,7 @@ export default function UserAuth() {
               </div>
             )}
 
-            {/* Strength meter (register) */}
+            {/* Strength meter */}
             {isRegister && password.length > 0 && (
               <div className="auth-strength">
                 <div className="auth-strength__bar-track">
@@ -252,24 +192,15 @@ export default function UserAuth() {
                     />
                   ))}
                 </div>
-                <span
-                  className="auth-strength__label"
-                  style={{ color: STRENGTH_COLORS[strength] }}
-                >
+                <span className="auth-strength__label" style={{ color: STRENGTH_COLORS[strength] }}>
                   {STRENGTH_LABELS[strength]}
                 </span>
               </div>
             )}
 
-            {/* Error */}
             {error && <div className="auth-error">{error}</div>}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className="auth-submit"
-              disabled={loading}
-            >
+            <button type="submit" className="auth-submit" disabled={loading}>
               {loading ? (
                 <span className="auth-spinner" />
               ) : (
@@ -281,7 +212,6 @@ export default function UserAuth() {
             </button>
           </form>
 
-          {/* Toggle */}
           <div className="auth-toggle">
             <span>{isRegister ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}</span>
             <button className="auth-toggle__btn" onClick={toggleMode}>
