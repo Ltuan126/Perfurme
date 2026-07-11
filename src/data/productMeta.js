@@ -59,3 +59,22 @@ export const allFamilies = [
 export const allSeasons = ['any', 'spring', 'summer', 'fall', 'winter'];
 export const allOccasions = ['everyday', 'office', 'casual', 'date-night', 'party', 'special'];
 export const allMoods = ['fresh-energizing', 'calm-clean', 'bold-confident', 'romantic', 'sophisticated', 'bright-happy', 'modern-minimal', 'atmospheric'];
+
+// Display labels (Vietnamese) — SILLAGE product tags & filters
+export const familyLabelsVN = {
+  citrus: 'Cam chanh',
+  floral: 'Hoa',
+  woody: 'Gỗ',
+  green: 'Xanh',
+  spicy: 'Gia vị',
+  musky: 'Xạ hương',
+  tea: 'Trà',
+  'white-floral': 'Hoa cam',
+  amber: 'Hổ phách',
+};
+
+export const intensityLabelsVN = {
+  light: 'Nhẹ',
+  moderate: 'Ấm',
+  strong: 'Đậm',
+};
