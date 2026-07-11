@@ -14,6 +14,8 @@ import Quiz from './components/Quiz';
 import Profile from './components/Profile';
 import PaymentCallback from './components/PaymentCallback';
 import CheckoutForm from './components/CheckoutForm';
+import OrderTracking from './components/OrderTracking';
+import Footer from './components/Footer';
 import { useAuth } from './context/AuthContext';
 
 const routerBasename = (() => {
@@ -107,11 +109,13 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/payment/callback" element={<PaymentCallback />} />
           <Route path="/checkout" element={user ? <CheckoutForm cart={cartItems} onOrderSuccess={() => setCartItems([])} /> : <Navigate to="/login" />} />
+          <Route path="/track" element={<OrderTracking />} />
           <Route path="/admin" element={isAdmin ? <AdminProductManager /> : <Navigate to="/" />} />
           <Route path="/admin/orders" element={isAdmin ? <AdminOrders /> : <Navigate to="/" />} />
           <Route path="/login" element={!user ? <UserAuth /> : <Navigate to="/" />} />
         </Routes>
       </div>
+      <Footer />
     </BrowserRouter>
   );
 }
