@@ -98,6 +98,12 @@ const orderSchema = new mongoose.Schema({
     paidAt: {
         type: Date,
         default: null
+    },
+    note: {
+        type: String,
+        trim: true,
+        maxlength: [300, 'Ghi chú không vượt quá 300 ký tự'],
+        default: ''
     }
 }, {
     timestamps: true  // auto createdAt + updatedAt
