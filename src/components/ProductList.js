@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { products as localProducts } from '../data/products';
 import { loadQuizAnswers } from '../utils/quiz';
-import { productMeta, allFamilies } from '../data/productMeta';
+import { productMeta, allFamilies, familyLabelsVN } from '../data/productMeta';
 import API_BASE_URL from '../config/api';
 
 export default function ProductList() {
@@ -110,67 +110,66 @@ export default function ProductList() {
     return base;
   }, [products, searchQuery, applyQuiz, priceFilter, familyFilter, sortOrder]);
 
-  if (loading) return <div className="text-center py-10 text-lg text-gray-500">Đang tải sản phẩm...</div>;
-  if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
+  if (loading) return <div className="text-center py-20 font-mono text-xs uppercase tracking-widest text-label">Đang tải sản phẩm...</div>;
+  if (error) return <div className="text-red-500 text-center py-20">{error}</div>;
+
+  const pill = (active) => `font-mono uppercase text-[10.5px] tracking-[0.14em] px-4 py-2 border transition-colors duration-300 ${active ? 'bg-ink text-cream border-ink' : 'bg-transparent text-ink border-hairline hover:border-ink'}`;
 
   return (
     <div className="section">
-      <h1 className="title text-blue-700">Danh sách sản phẩm</h1>
+      <div className="eyebrow text-center mb-3">Bộ sưu tập</div>
+      <h1 className="title">Toàn bộ nước hoa</h1>
+
       {loadQuizAnswers() && (
-        <div className="mb-4 flex items-center justify-between glass p-4">
-          <div className="text-sm text-slate-700">Bạn đã có câu trả lời Quiz. Áp dụng bộ gợi ý để sắp xếp danh sách?</div>
-          <button onClick={() => setApplyQuiz(true)} className="px-3 py-1 rounded-full border border-blue-200 text-blue-700 hover:bg-blue-50">Áp dụng gợi ý</button>
+        <div className="mb-6 flex items-center justify-between border border-hairline px-5 py-4">
+          <div className="text-sm text-muted font-light">Bạn đã có câu trả lời Quiz. Áp dụng bộ gợi ý để sắp xếp danh sách?</div>
+          <button onClick={() => setApplyQuiz(true)} className="btn-outline shrink-0 ml-4">Áp dụng gợi ý</button>
         </div>
       )}
       {searchQuery && (
-        <p className="text-sm text-slate-600 mb-4">Kết quả tìm kiếm cho: <span className="font-semibold text-slate-800">{searchQuery}</span></p>
+        <p className="text-sm text-muted mb-6 font-light">Kết quả tìm kiếm cho: <span className="text-ink">{searchQuery}</span></p>
       )}
 
-      {/* Filter and Sort Bar */}
-      <div className="mb-6 p-4 glass rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
-        <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
-          <span className="font-semibold text-slate-700">Lọc theo:</span>
-          <select 
-            value={priceFilter} 
+      {/* Family filter pills */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button onClick={() => setFamilyFilter('all')} className={pill(familyFilter === 'all')}>Tất cả</button>
+        {allFamilies.map(f => (
+          <button key={f} onClick={() => setFamilyFilter(f)} className={pill(familyFilter === f)}>
+            {familyLabelsVN[f] || f}
+          </button>
+        ))}
+      </div>
+
+      {/* Price + Sort */}
+      <div className="mb-10 pb-6 border-b border-hairline flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="flex flex-wrap gap-6 items-center">
+          <select
+            value={priceFilter}
             onChange={e => setPriceFilter(e.target.value)}
-            className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white shadow-sm transition-all"
+            className="font-mono uppercase text-[10.5px] tracking-[0.1em] bg-transparent border-b border-hairline pb-1 outline-none text-ink"
           >
             <option value="all">Mọi mức giá</option>
             <option value="under2m">Dưới 2.000.000₫</option>
             <option value="2mto5m">2.000.000₫ - 5.000.000₫</option>
             <option value="over5m">Trên 5.000.000₫</option>
           </select>
-
-          <select 
-            value={familyFilter} 
-            onChange={e => setFamilyFilter(e.target.value)}
-            className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white capitalize shadow-sm transition-all"
-          >
-            <option value="all">Tất cả nhóm hương</option>
-            {allFamilies.map(f => (
-              <option key={f} value={f}>{f.replace('-', ' ')}</option>
-            ))}
-          </select>
         </div>
 
-        <div className="flex gap-4 items-center w-full md:w-auto md:justify-end">
-          <span className="font-semibold text-slate-700">Sắp xếp:</span>
-          <select 
-            value={sortOrder} 
-            onChange={e => setSortOrder(e.target.value)}
-            className="px-3 py-2 border border-blue-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white shadow-sm transition-all"
-          >
-            <option value="default">Mặc định</option>
-            <option value="price-asc">Giá: Thấp đến Cao</option>
-            <option value="price-desc">Giá: Cao đến Thấp</option>
-          </select>
-        </div>
+        <select
+          value={sortOrder}
+          onChange={e => setSortOrder(e.target.value)}
+          className="font-mono uppercase text-[10.5px] tracking-[0.1em] bg-transparent border-b border-hairline pb-1 outline-none text-ink"
+        >
+          <option value="default">Mặc định</option>
+          <option value="price-asc">Giá: Thấp đến Cao</option>
+          <option value="price-desc">Giá: Cao đến Thấp</option>
+        </select>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="glass p-8 text-center text-slate-600">Không tìm thấy sản phẩm phù hợp.</div>
+        <div className="border border-hairline p-10 text-center text-muted font-light">Không tìm thấy sản phẩm phù hợp.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14">
           {filtered.map(product => (
             <ProductCard key={product._id || `local-${product.id}`} product={product} />
           ))}
