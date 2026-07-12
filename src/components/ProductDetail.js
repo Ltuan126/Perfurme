@@ -5,6 +5,36 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
+import { productMeta, familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
+
+const NOTE_WORDS = {
+  citrus: ['Chanh vàng', 'Cam Ý', 'Bưởi'],
+  floral: ['Hoa hồng', 'Hoa violet', 'Hoa diên vĩ'],
+  woody: ['Gỗ tuyết tùng', 'Gỗ đàn hương', 'Vetiver'],
+  green: ['Lá xanh', 'Cỏ vetiver', 'Lá sung'],
+  spicy: ['Hạt tiêu hồng', 'Nhục đậu khấu', 'Quế'],
+  musky: ['Xạ hương trắng', 'Xạ hương động vật'],
+  tea: ['Trà đen', 'Trà xanh', 'Bergamot'],
+  'white-floral': ['Hoa cam', 'Hoa huệ', 'Hoa nhài trắng'],
+  amber: ['Hổ phách', 'Vani', 'Đậu Tonka'],
+};
+
+const TOP_FAMILIES = ['citrus', 'green', 'spicy'];
+const HEART_FAMILIES = ['floral', 'white-floral', 'tea'];
+const BASE_FAMILIES = ['woody', 'musky', 'amber'];
+
+function buildPyramid(meta) {
+  if (!meta?.families?.length) return null;
+  const pick = (pool) => {
+    const fams = meta.families.filter(f => pool.includes(f));
+    const words = fams.flatMap(f => NOTE_WORDS[f] || []);
+    return words.length ? words.slice(0, 3) : null;
+  };
+  const top = pick(TOP_FAMILIES) || (NOTE_WORDS[meta.families[0]] || []).slice(0, 2);
+  const heart = pick(HEART_FAMILIES) || (NOTE_WORDS[meta.families[0]] || []).slice(0, 2);
+  const base = pick(BASE_FAMILIES) || (NOTE_WORDS[meta.families[meta.families.length - 1]] || []).slice(0, 2);
+  return { top, heart, base };
+}
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -47,6 +77,20 @@ export default function ProductDetail({ addToCart }) {
     return Number(found.price) || 0;
   }, [sizes, selectedSize, product]);
 
+  const currentSizeLabel = useMemo(() => (selectedSize || sizes?.[0]?.label), [selectedSize, sizes]);
+
+  const meta = useMemo(() => {
+    if (!product) return null;
+    const pId = product.id || product._id;
+    return productMeta[pId] || Object.values(productMeta).find(m => m.name.toLowerCase() === (product.name || '').toLowerCase());
+  }, [product]);
+
+  const noteTag = meta
+    ? [familyLabelsVN[meta.families?.[0]], intensityLabelsVN[meta.intensity]].filter(Boolean).join(' · ')
+    : null;
+
+  const pyramid = useMemo(() => buildPyramid(meta), [meta]);
+
   useEffect(() => {
     // Only attempt reviews when viewing a backend product (has string _id)
     if (product && product._id) {
@@ -66,30 +110,59 @@ export default function ProductDetail({ addToCart }) {
     }
   }, [product, page, limit]);
 
-  if (loading) return <div className="text-center py-10 text-lg text-gray-500">Đang tải sản phẩm...</div>;
-  if (error || !product) return <p className="cart-empty text-center py-10">Product not found.</p>;
+  if (loading) return <div className="text-center py-20 font-mono text-xs uppercase tracking-widest text-label">Đang tải sản phẩm...</div>;
+  if (error || !product) return <p className="cart-empty text-center py-20">Product not found.</p>;
 
   return (
     <div className="section">
-      <div className="product-detail gap-6 p-6">
-        <img src={product.image} alt={product.name} className="detail-img rounded-xl" />
+      <Link to="/products" className="font-mono uppercase text-[11px] tracking-[0.14em] text-label hover:text-ink transition-colors inline-block mb-8">← Bộ sưu tập</Link>
+
+      <div className="product-detail">
+        <img src={product.image} alt={product.name} className="detail-img" />
         <div className="detail-content">
-          <h2 className="detail-title text-blue-700 flex items-center gap-2">{product.name}</h2>
+          {noteTag && <div className="eyebrow mb-4">{noteTag}</div>}
+          <h1 className="detail-title">{product.name}</h1>
+          <div className="flex items-baseline gap-2 mb-6">
+            <span className="detail-price">{currentPrice.toLocaleString('vi-VN')}₫</span>
+            {currentSizeLabel && <span className="font-mono text-label text-[13px]">· {currentSizeLabel}</span>}
+          </div>
           <p className="detail-desc">{product.description}</p>
+
           {sizes?.length > 0 && (
-            <div className="mt-3">
-              <div className="text-sm text-slate-600 mb-1">Chọn dung tích:</div>
+            <div className="mb-8">
+              <div className="field-label mb-2">Chọn dung tích</div>
               <div className="flex gap-2">
                 {sizes.map(s => (
-                  <button key={s.label} onClick={() => setSelectedSize(s.label)} className={`px-3 py-1 rounded-full border ${selectedSize === s.label || (!selectedSize && s.label === sizes[0].label) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-300'} transition`}>
+                  <button
+                    key={s.label}
+                    onClick={() => setSelectedSize(s.label)}
+                    className={`font-mono uppercase text-[11px] tracking-[0.1em] px-4 py-2 border transition-colors ${selectedSize === s.label || (!selectedSize && s.label === sizes[0].label) ? 'bg-ink text-cream border-ink' : 'bg-transparent text-ink border-hairline hover:border-ink'}`}
+                  >
                     {s.label}
                   </button>
                 ))}
               </div>
             </div>
           )}
-          <div className="flex items-center gap-4 mt-3">
-            <span className="detail-price text-blue-600">{currentPrice.toLocaleString('vi-VN')}₫</span>
+
+          {pyramid && (
+            <div className="mb-8 hairline-t hairline-b py-5 space-y-3">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="field-label mb-0">Hương đầu</span>
+                <span className="text-sm text-muted font-light text-right">{pyramid.top.join(', ')}</span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="field-label mb-0">Hương giữa</span>
+                <span className="text-sm text-muted font-light text-right">{pyramid.heart.join(', ')}</span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="field-label mb-0">Hương cuối</span>
+                <span className="text-sm text-muted font-light text-right">{pyramid.base.join(', ')}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
             <button className="detail-add" onClick={() => {
               const s = sizes && sizes.length > 0 ? (sizes.find(x => x.label === selectedSize) || sizes[0]) : { label: undefined, price: product.price };
               addToCart({ ...product, sizeLabel: s.label, price: s.price }, 1, { sizeLabel: s.label, price: s.price });
@@ -97,53 +170,54 @@ export default function ProductDetail({ addToCart }) {
             }}>
               Thêm vào giỏ hàng
             </button>
-            <button className="px-4 py-2 rounded-full border border-slate-300 text-slate-700 hover:bg-slate-50" onClick={() => navigate('/products')}>
-              ← Quay về sản phẩm
+            <button className="btn-outline" onClick={() => navigate('/cart')}>
+              Xem giỏ
             </button>
           </div>
           {justAdded && (
-            <div className="mt-3 flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
-              <span className="text-sm text-green-700 font-medium">✓ Đã thêm vào giỏ hàng!</span>
-              <Link to="/checkout" className="ml-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-full transition">
+            <div className="mt-5 flex items-center gap-3 border border-hairline px-4 py-3">
+              <span className="text-sm font-mono uppercase tracking-wider" style={{ color: 'var(--accent)' }}>✓ Đã thêm vào giỏ hàng</span>
+              <Link to="/checkout" className="ml-auto font-mono uppercase text-[11px] tracking-wider text-ink underline underline-offset-4">
                 Tiến hành thanh toán →
               </Link>
             </div>
           )}
         </div>
       </div>
+
       {/* Review section */}
-      <div className="mt-8">
-        <h3 className="text-lg font-bold mb-2">Đánh giá sản phẩm</h3>
+      <div className="mt-16 pt-10 hairline-t">
+        <h3 className="font-serif font-light text-2xl mb-4">Đánh giá sản phẩm</h3>
         {!product._id ? (
-          <div className="text-gray-500">Tính năng đánh giá áp dụng cho sản phẩm trên máy chủ.</div>
+          <div className="text-muted font-light">Tính năng đánh giá áp dụng cho sản phẩm trên máy chủ.</div>
         ) : reviews.length === 0 ? (
-          <div className="text-gray-500">Chưa có đánh giá nào.</div>
+          <div className="text-muted font-light">Chưa có đánh giá nào.</div>
         ) : (
           <div>
             {reviews.map((r) => (
-              <div key={r._id} className="border-b py-2">
-                <div className="flex gap-2 items-center">
-                  <span className="font-semibold">{r.rating}★</span>
-                  <span>Độ lưu hương: {r.longevity || '-'} / 5</span>
-                  <span>Độ tỏa hương: {r.sillage || '-'} / 5</span>
+              <div key={r._id} className="border-b border-hairline py-4">
+                <div className="flex gap-3 items-center font-mono text-[11px] uppercase tracking-wider text-ink">
+                  <span>{r.rating}★</span>
+                  <span className="text-label">Độ lưu hương: {r.longevity || '-'} / 5</span>
+                  <span className="text-label">Độ tỏa hương: {r.sillage || '-'} / 5</span>
                 </div>
-                <div className="italic text-sm text-gray-600">Trải nghiệm: {r.experience || '-'}</div>
-                <div>{r.comment}</div>
-                <div className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleString()}</div>
+                <div className="italic text-sm text-muted mt-1">Trải nghiệm: {r.experience || '-'}</div>
+                <div className="text-sm text-ink mt-1 font-light">{r.comment}</div>
+                <div className="text-xs text-label mt-1">{new Date(r.createdAt).toLocaleString()}</div>
               </div>
             ))}
             {/* Pagination */}
-            <div className="flex gap-2 mt-4">
-              <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-2 py-1 border rounded">Trước</button>
-              <span>Trang {page} / {Math.ceil(totalReviews / limit)}</span>
-              <button disabled={page >= Math.ceil(totalReviews / limit)} onClick={() => setPage(page + 1)} className="px-2 py-1 border rounded">Sau</button>
+            <div className="flex items-center gap-4 mt-6 font-mono text-[11px] uppercase tracking-wider">
+              <button disabled={page === 1} onClick={() => setPage(page - 1)} className="text-ink disabled:text-label">← Trước</button>
+              <span className="text-label">Trang {page} / {Math.ceil(totalReviews / limit)}</span>
+              <button disabled={page >= Math.ceil(totalReviews / limit)} onClick={() => setPage(page + 1)} className="text-ink disabled:text-label">Sau →</button>
             </div>
           </div>
         )}
       </div>
       {/* Q&A section */}
       {product._id ? <QASection productId={product._id} /> : (
-        <div className="mt-6 text-gray-500">Hỏi đáp áp dụng cho sản phẩm trên máy chủ.</div>
+        <div className="mt-8 text-muted font-light">Hỏi đáp áp dụng cho sản phẩm trên máy chủ.</div>
       )}
     </div>
   );
@@ -194,40 +268,40 @@ function QASection({ productId }) {
   };
 
   return (
-    <div className="mt-10">
-      <h3 className="text-lg font-bold mb-2">Hỏi đáp sản phẩm</h3>
-      <form onSubmit={handleAsk} className="flex gap-2 mb-4">
+    <div className="mt-16 pt-10 hairline-t">
+      <h3 className="font-serif font-light text-2xl mb-4">Hỏi đáp sản phẩm</h3>
+      <form onSubmit={handleAsk} className="flex gap-3 mb-6">
         <input
           type="text"
           value={question}
           onChange={e => setQuestion(e.target.value)}
           placeholder="Đặt câu hỏi về sản phẩm..."
-          className="border px-2 py-1 rounded w-full"
+          className="field-underline flex-1"
         />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Gửi</button>
+        <button type="submit" className="btn-outline shrink-0">Gửi</button>
       </form>
       {loading ? (
-        <div className="text-gray-500">Đang tải câu hỏi...</div>
+        <div className="text-muted font-light">Đang tải câu hỏi...</div>
       ) : qas.length === 0 ? (
-        <div className="text-gray-500">Chưa có câu hỏi nào.</div>
+        <div className="text-muted font-light">Chưa có câu hỏi nào.</div>
       ) : (
         <div>
           {qas.map((qa) => (
-            <div key={qa._id} className="border-b py-2">
-              <div className="font-semibold">Q: {qa.question}</div>
+            <div key={qa._id} className="border-b border-hairline py-4">
+              <div className="text-ink font-normal">Q: {qa.question}</div>
               {qa.answer ? (
-                <div className="text-green-700">A: {qa.answer}</div>
+                <div className="mt-1 text-sm font-light" style={{ color: 'var(--accent)' }}>A: {qa.answer}</div>
               ) : (
-                <div className="text-gray-400 italic">Chưa có trả lời từ admin.</div>
+                <div className="text-label italic text-sm mt-1">Chưa có trả lời từ admin.</div>
               )}
-              <div className="text-xs text-gray-400">{new Date(qa.createdAt).toLocaleString()}</div>
+              <div className="text-xs text-label mt-1">{new Date(qa.createdAt).toLocaleString()}</div>
             </div>
           ))}
           {/* Pagination */}
-          <div className="flex gap-2 mt-4">
-            <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-2 py-1 border rounded">Trước</button>
-            <span>Trang {page} / {Math.ceil(totalQAs / limit)}</span>
-            <button disabled={page >= Math.ceil(totalQAs / limit)} onClick={() => setPage(page + 1)} className="px-2 py-1 border rounded">Sau</button>
+          <div className="flex items-center gap-4 mt-6 font-mono text-[11px] uppercase tracking-wider">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)} className="text-ink disabled:text-label">← Trước</button>
+            <span className="text-label">Trang {page} / {Math.ceil(totalQAs / limit)}</span>
+            <button disabled={page >= Math.ceil(totalQAs / limit)} onClick={() => setPage(page + 1)} className="text-ink disabled:text-label">Sau →</button>
           </div>
         </div>
       )}
