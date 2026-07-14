@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import API_BASE_URL from '../config/api';
 
 export default function PaymentCallback() {
@@ -14,7 +14,7 @@ export default function PaymentCallback() {
       try {
         // Get order ID from URL or stored
         let ordId = searchParams.get('orderId');
-        
+
         if (!ordId) {
           setStatus('failed');
           setMessage('Không tìm thấy thông tin đơn hàng');
@@ -37,20 +37,20 @@ export default function PaymentCallback() {
 
         if (paymentData.paymentStatus === 'paid') {
           setStatus('success');
-          setMessage(`✅ Thanh toán thành công! Đơn hàng của bạn đã được khởi tạo.`);
-          
+          setMessage('Thanh toán thành công! Đơn hàng của bạn đã được khởi tạo.');
+
           // Redirect to home after 3 seconds
           setTimeout(() => {
             navigate('/');
           }, 3000);
         } else if (paymentData.paymentStatus === 'failed') {
           setStatus('failed');
-          setMessage('❌ Thanh toán thất bại. Vui lòng thử lại hoặc chọn phương thức khác.');
+          setMessage('Thanh toán thất bại. Vui lòng thử lại hoặc chọn phương thức khác.');
         } else {
           // Still pending
           setStatus('processing');
           setMessage('Đang chờ xác nhận thanh toán...');
-          
+
           // Retry check after 3 seconds
           setTimeout(() => {
             window.location.reload();
@@ -66,40 +66,40 @@ export default function PaymentCallback() {
   }, [searchParams, navigate]);
 
   return (
-    <section className="section">
-      <div className="max-w-lg mx-auto glass p-8 rounded-2xl text-center">
-        <h1 className="text-2xl font-bold mb-4">Xác nhận thanh toán</h1>
-        
+    <section className="section flex items-center justify-center min-h-[60vh]">
+      <div className="max-w-md w-full border border-hairline p-10 text-center">
+        <div className="eyebrow mb-6">Xác nhận thanh toán</div>
+
         {status === 'processing' && (
-          <div className="flex flex-col items-center gap-4">
-            <div className="animate-spin w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full" />
-            <p className="text-slate-600">{message}</p>
+          <div className="flex flex-col items-center gap-6">
+            <div className="w-10 h-10 border border-hairline rounded-full animate-spin" style={{ borderTopColor: 'var(--accent)' }} />
+            <p className="text-muted font-light">{message}</p>
           </div>
         )}
 
         {status === 'success' && (
-          <div className="flex flex-col items-center gap-4 text-emerald-700">
-            <div className="text-5xl">✅</div>
-            <p className="text-lg font-semibold">{message}</p>
-            <p className="text-sm text-slate-600">Đang chuyển hướng về trang chủ...</p>
+          <div className="flex flex-col items-center gap-4">
+            <div className="font-mono uppercase text-[11px] tracking-wider" style={{ color: 'var(--accent)' }}>✓ Thành công</div>
+            <p className="font-serif text-xl text-ink">{message}</p>
+            <p className="text-sm text-muted font-light">Đang chuyển hướng về trang chủ...</p>
             {orderId && (
-              <p className="text-xs text-slate-500">
-                Mã đơn hàng: <span className="font-mono font-semibold">{orderId.slice(-6).toUpperCase()}</span>
+              <p className="text-xs text-label font-mono">
+                Mã đơn hàng: <span className="text-ink">{orderId.slice(-6).toUpperCase()}</span>
               </p>
             )}
           </div>
         )}
 
         {status === 'failed' && (
-          <div className="flex flex-col items-center gap-4 text-red-600">
-            <div className="text-5xl">❌</div>
-            <p className="text-lg font-semibold">{message}</p>
-            <button
-              onClick={() => navigate('/cart')}
-              className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition"
-            >
-              Quay lại giỏ hàng
-            </button>
+          <div className="flex flex-col items-center gap-4">
+            <div className="font-mono uppercase text-[11px] tracking-wider text-red-700">Thất bại</div>
+            <p className="font-serif text-xl text-ink">{message}</p>
+            <div className="flex gap-3 mt-2">
+              <button onClick={() => navigate('/cart')} className="btn-outline">Quay lại giỏ hàng</button>
+              {orderId && (
+                <Link to={`/track?order=${orderId}`} className="btn-primary">Tra cứu đơn hàng</Link>
+              )}
+            </div>
           </div>
         )}
       </div>
