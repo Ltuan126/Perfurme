@@ -89,7 +89,8 @@ const createOrder = asyncHandler(async (req, res) => {
         total,
         username: req.user?.username,
         paymentMethod,
-        paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending'
+        paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending',
+        note: body.note || ''
     });
 
     // Award loyalty points immediately for COD only
@@ -129,8 +130,55 @@ const updateOrder = asyncHandler(async (req, res) => {
     res.json({ success: true, data: order });
 });
 
+// @desc    Tra cứu trạng thái đơn hàng theo mã đơn (timeline)
+// @route   GET /api/orders/track/:id
+// @access  Public
+const trackOrder = asyncHandler(async (req, res) => {
+    let order;
+    try {
+        order = await Order.findById(req.params.id);
+    } catch {
+        order = null;
+    }
+    if (!order) {
+        throw new AppError('Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn hàng.', 404);
+    }
+
+    const paymentConfirmed = order.paymentMethod === 'cod' || order.paymentStatus === 'paid';
+    const inProduction = ['confirmed', 'shipped', 'completed'].includes(order.status);
+    const packed = ['shipped', 'completed'].includes(order.status);
+    const delivered = order.status === 'completed';
+
+    const steps = [
+        { key: 'received', label: 'Đã nhận đơn hàng', done: true, at: order.createdAt },
+        { key: 'payment_confirmed', label: 'Đã xác nhận thanh toán', done: paymentConfirmed, at: order.paidAt || (paymentConfirmed ? order.createdAt : null) },
+        { key: 'production', label: 'Đang trong quá trình sản xuất', done: inProduction, at: inProduction ? order.updatedAt : null },
+        { key: 'packed', label: 'Đóng gói & khắc tên', done: packed, at: packed ? order.updatedAt : null },
+        { key: 'delivery', label: 'Đang giao hàng / Hoàn tất', done: delivered, at: delivered ? order.updatedAt : null },
+    ];
+
+    // Estimated delivery: 5 days after order creation
+    const estimatedDelivery = new Date(order.createdAt);
+    estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
+
+    res.json({
+        success: true,
+        data: {
+            orderId: order._id,
+            status: order.status,
+            paymentMethod: order.paymentMethod,
+            paymentStatus: order.paymentStatus,
+            total: order.total,
+            createdAt: order.createdAt,
+            estimatedDelivery,
+            steps
+        }
+    });
+});
+
 module.exports = {
     createOrder,
     getOrders,
-    updateOrder
+    updateOrder,
+    trackOrder
 };
