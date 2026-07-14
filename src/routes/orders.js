@@ -5,11 +5,15 @@ const { validateOrder } = require('../middleware/validate');
 const {
     createOrder,
     getOrders,
-    updateOrder
+    updateOrder,
+    trackOrder
 } = require('../controllers/orderController');
 
 // Public: create COD order (but auth is required to track user and loyalty)
 router.post('/', authRequired, validateOrder, createOrder);
+
+// Public: track order status by order code
+router.get('/track/:id', trackOrder);
 
 // Admin-only routes
 router.get('/', authRequired, requireRole('admin'), getOrders);
