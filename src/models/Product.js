@@ -41,6 +41,11 @@ const productSchema = new mongoose.Schema({
   inStock: {
     type: Boolean,
     default: true
+  },
+  stock: {
+    type: Number,
+    default: 0,
+    min: [0, 'Tồn kho không thể âm']
   }
 }, {
   timestamps: true

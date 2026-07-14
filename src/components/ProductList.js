@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { products as localProducts } from '../data/products';
 import { loadQuizAnswers } from '../utils/quiz';
-import { productMeta, allFamilies, familyLabelsVN } from '../data/productMeta';
+import { allFamilies, familyLabelsVN, getProductMeta } from '../data/productMeta';
 import API_BASE_URL from '../config/api';
 
 export default function ProductList() {
@@ -25,15 +25,24 @@ export default function ProductList() {
   }, [location.search]);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products`)
-      .then(res => res.ok ? res.json() : [])
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('search', searchQuery);
+    fetch(`${API_BASE_URL}/api/products?${params.toString()}`)
+      .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          // Merge local "Mini" items into API list if not already present
-          const minis = localProducts.filter(p => /mini/i.test(p.name || ''));
-          const fetchedNames = new Set(data.map(p => (p?.name || '').toLowerCase()));
+        const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : null);
+        if (list && (list.length > 0 || searchQuery)) {
+          // search rỗng kết quả là hợp lệ (không fallback); chỉ merge Mini tĩnh khi khớp searchQuery
+          const minis = localProducts.filter(p => {
+            if (!/mini/i.test(p.name || '')) return false;
+            if (!searchQuery) return true;
+            const name = (p.name || '').toLowerCase();
+            const desc = (p.description || '').toLowerCase();
+            return name.includes(searchQuery) || desc.includes(searchQuery);
+          });
+          const fetchedNames = new Set(list.map(p => (p?.name || '').toLowerCase()));
           const minisToAdd = minis.filter(p => !fetchedNames.has((p.name || '').toLowerCase()));
-          setProducts([...data, ...minisToAdd]);
+          setProducts([...list, ...minisToAdd]);
         } else {
           setProducts(localProducts);
         }
@@ -45,26 +54,18 @@ export default function ProductList() {
         setError('Hiển thị danh sách cục bộ (API không khả dụng).');
         setLoading(false);
       });
-  }, []);
+  }, [searchQuery]);
 
   // IMPORTANT: define all hooks before any early return to keep hook order stable
   const filtered = useMemo(() => {
     let base = products;
-    // optional search text filter
-    if (searchQuery) {
-      base = base.filter(p => {
-        const name = (p.name || '').toLowerCase();
-        const desc = (p.description || '').toLowerCase();
-        return name.includes(searchQuery) || desc.includes(searchQuery);
-      });
-    }
     // optional quiz filter
     if (applyQuiz) {
       const answers = loadQuizAnswers();
       if (answers) {
         base = base
           .map(p => {
-            const m = productMeta[p.id];
+            const m = getProductMeta(p);
             let s = 0;
             if (answers.families?.length) s += (answers.families.filter(f => m?.families?.includes(f)).length || 0) * 3;
             if (answers.season) s += (answers.season === 'any' || m?.seasons?.includes(answers.season)) ? 1 : 0;
@@ -90,12 +91,7 @@ export default function ProductList() {
       // family filter
       if (familyFilter !== 'all') {
         base = base.filter(p => {
-          const pId = p.id || p._id;
-          let meta = productMeta[pId];
-          if (!meta) {
-            const foundMeta = Object.values(productMeta).find(m => m.name.toLowerCase() === (p.name || '').toLowerCase());
-            meta = foundMeta;
-          }
+          const meta = getProductMeta(p);
           return meta && meta.families?.includes(familyFilter);
         });
       }

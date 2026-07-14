@@ -5,8 +5,30 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find().sort({ name: 1 });
-    res.json({ success: true, count: products.length, data: products });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(0, parseInt(req.query.limit) || 0);
+    const search = (req.query.search || '').trim();
+
+    const filter = {};
+    if (search) {
+        const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escaped, 'i');
+        filter.$or = [{ name: regex }, { description: regex }];
+    }
+
+    let query = Product.find(filter).sort({ name: 1 });
+    if (limit > 0) {
+        query = query.skip((page - 1) * limit).limit(limit);
+    }
+
+    const [products, total] = await Promise.all([query, Product.countDocuments(filter)]);
+
+    res.json({
+        success: true,
+        count: products.length,
+        data: products,
+        meta: { page, limit: limit || total, total, totalPages: limit > 0 ? Math.ceil(total / limit) : 1 }
+    });
 });
 
 // @desc    Lấy chi tiết sản phẩm theo ID

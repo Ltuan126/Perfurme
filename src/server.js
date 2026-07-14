@@ -13,6 +13,7 @@ const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/review');
 const qaRoutes = require('./routes/qa');
 const paymentRoutes = require('./routes/payment');
+const contactRoutes = require('./routes/contact');
 
 // Import middleware
 const { authRequired } = require('./middleware/auth');
@@ -71,6 +72,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/qas', qaRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/contact', contactRoutes);
 
 // User profile route
 app.get('/api/me', authRequired, getMe);

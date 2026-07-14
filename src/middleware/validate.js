@@ -78,7 +78,14 @@ const validateLogin = validateBody([
 const validateProduct = validateBody([
     { field: 'name', label: 'Tên sản phẩm', required: true, type: 'string', maxlength: 200 },
     { field: 'price', label: 'Giá', required: true, type: 'number', min: 0 },
-    { field: 'description', label: 'Mô tả', type: 'string', maxlength: 2000 }
+    { field: 'description', label: 'Mô tả', type: 'string', maxlength: 2000 },
+    { field: 'stock', label: 'Tồn kho', type: 'number', min: 0 }
+]);
+
+const validateContact = validateBody([
+    { field: 'name', label: 'Họ tên', required: true, type: 'string', maxlength: 100 },
+    { field: 'email', label: 'Email', required: true, type: 'string', maxlength: 120, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, matchMsg: 'Email không hợp lệ' },
+    { field: 'message', label: 'Nội dung', required: true, type: 'string', maxlength: 2000 }
 ]);
 
 const validateOrder = validateBody([
@@ -108,5 +115,6 @@ module.exports = {
     validateProduct,
     validateOrder,
     validateReview,
-    validateProfileUpdate
+    validateProfileUpdate,
+    validateContact
 };

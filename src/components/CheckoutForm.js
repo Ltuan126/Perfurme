@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { calcEstimatedPointsFromTotal, addPoints } from '../utils/loyalty';
+import { calcEstimatedPointsFromTotal } from '../utils/loyalty';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function CheckoutForm({ cart, onOrderSuccess }) {
-  const { username, authFetch } = useAuth();
+  const { authFetch } = useAuth();
   const [form, setForm] = useState({ name: '', phone: '', address: '', city: '', note: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,9 +60,6 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
 
       if (gatewayMethod === 'cod') {
         setSuccess(true);
-        if (username && summary.estPoints > 0) {
-          addPoints(username, summary.estPoints);
-        }
         if (onOrderSuccess) onOrderSuccess();
       } else {
         // VNPAY: Initiate payment session

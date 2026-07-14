@@ -120,13 +120,31 @@ const getOrders = asyncHandler(async (req, res) => {
 // @route   PUT /api/orders/:id
 // @access  Admin
 const updateOrder = asyncHandler(async (req, res) => {
+    const existing = await Order.findById(req.params.id);
+    if (!existing) {
+        throw new AppError('Không tìm thấy đơn hàng', 404);
+    }
+
+    if (req.body.status === 'confirmed' && existing.status === 'pending') {
+        // Kiểm tra đủ tồn kho cho TẤT CẢ item trước khi trừ bất kỳ item nào
+        for (const item of existing.cart) {
+            const product = await Product.findOne({ name: item.name });
+            if (!product || product.stock < item.quantity) {
+                throw new AppError(
+                    `Sản phẩm "${item.name}" không đủ tồn kho (còn ${product?.stock ?? 0}, cần ${item.quantity})`,
+                    400
+                );
+            }
+        }
+        for (const item of existing.cart) {
+            await Product.findOneAndUpdate({ name: item.name }, { $inc: { stock: -item.quantity } });
+        }
+    }
+
     const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     });
-    if (!order) {
-        throw new AppError('Không tìm thấy đơn hàng', 404);
-    }
     res.json({ success: true, data: order });
 });
 

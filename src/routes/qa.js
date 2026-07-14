@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const QA = require('../models/QA');
-const { isAuthenticated } = require('../middleware/auth');
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 // Lấy Q&A theo productId, phân trang
 router.get('/:productId', async (req, res) => {
@@ -21,7 +21,7 @@ router.get('/:productId', async (req, res) => {
 // Khách đặt câu hỏi
 router.post('/', isAuthenticated, async (req, res) => {
   try {
-    const qa = new QA({ ...req.body, userId: req.user._id });
+    const qa = new QA({ ...req.body, userId: req.user.sub });
     await qa.save();
     res.status(201).json(qa);
   } catch (err) {
@@ -30,12 +30,11 @@ router.post('/', isAuthenticated, async (req, res) => {
 });
 
 // Admin trả lời
-router.put('/:id/answer', isAuthenticated, async (req, res) => {
+router.put('/:id/answer', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    // Kiểm tra quyền admin ở middleware
     const qa = await QA.findByIdAndUpdate(
       req.params.id,
-      { answer: req.body.answer, adminId: req.user._id, answeredAt: new Date() },
+      { answer: req.body.answer, adminId: req.user.sub, answeredAt: new Date() },
       { new: true }
     );
     if (!qa) return res.status(404).json({ error: 'Q&A not found' });

@@ -54,8 +54,9 @@ export default function ProductDetail({ addToCart }) {
     fetch(`${API_BASE_URL}/api/products/${id}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data && data._id) {
-          setProduct(data);
+        const product = data?.data && data.data._id ? data.data : null;
+        if (product) {
+          setProduct(product);
         } else {
           // Fallback to local item by numeric id
           const local = localProducts.find(p => String(p.id) === String(id));

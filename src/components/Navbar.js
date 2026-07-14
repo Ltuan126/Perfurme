@@ -2,12 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiShoppingCart, FiUser, FiLogOut, FiChevronDown } from "react-icons/fi";
 import API_BASE_URL from '../config/api';
-import { loadUserLoyalty } from '../utils/loyalty';
 import { useAuth } from '../context/AuthContext';
 
 
 export default function Navbar({ cartCount }) {
-  const { user, username: currentUser, isAdmin, logout, authFetch } = useAuth();
+  const { username: currentUser, isAdmin, logout, authFetch } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -54,23 +53,19 @@ export default function Navbar({ cartCount }) {
   }, [userMenuOpen]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      setLoyalty({ points: 0, tier: null });
+      return;
+    }
     authFetch(`${API_BASE_URL}/api/me`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data?.data) {
-          setLoyalty({ points: data.data.points || 0, tier: data.data.tier || 'None' });
-        }
+        setLoyalty(data?.data
+          ? { points: data.data.points || 0, tier: data.data.tier || 'None' }
+          : { points: 0, tier: null });
       })
-      .catch(() => {
-        const l = loadUserLoyalty(currentUser);
-        setLoyalty(l);
-      });
-    if (!user) {
-      const l = loadUserLoyalty(currentUser);
-      setLoyalty(l);
-    }
-  }, [currentUser, authFetch, user]);
+      .catch(() => setLoyalty({ points: 0, tier: null }));
+  }, [currentUser, authFetch]);
 
   const navLink = "font-mono uppercase text-[11.5px] tracking-[0.14em] text-ink/80 hover:text-ink transition-colors";
 

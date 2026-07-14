@@ -1,19 +1,36 @@
 import React, { useState } from 'react';
+import API_BASE_URL from '../config/api';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) return;
-    // In production, send to backend API
-    setSent(true);
-    setForm({ name: '', email: '', message: '' });
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+      const payload = await res.json();
+      if (!res.ok || !payload.success) throw new Error(payload.message || 'Gửi thất bại');
+      setSent(true);
+      setForm({ name: '', email: '', message: '' });
+    } catch {
+      setError('Có lỗi khi gửi. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const infoItem = (label, value, href) => (
@@ -102,8 +119,11 @@ export default function Contact() {
                   required
                 />
               </div>
-              <button type="submit" className="btn-primary w-full">
-                Gửi lời nhắn
+              {error && (
+                <div className="font-mono text-[11px] uppercase tracking-wider text-red-600">{error}</div>
+              )}
+              <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-40">
+                {loading ? 'Đang gửi...' : 'Gửi lời nhắn'}
               </button>
             </form>
           )}

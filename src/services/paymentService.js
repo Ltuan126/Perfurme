@@ -6,6 +6,11 @@
 const crypto = require('crypto');
 const qs = require('qs'); // dùng qs.stringify giống official VNPay NodeJS sample
 
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.MOMO_SECRET_KEY) throw new Error('MOMO_SECRET_KEY chưa được cấu hình an toàn cho production');
+  if (!process.env.VNPAY_HASH_SECRET) throw new Error('VNPAY_HASH_SECRET chưa được cấu hình an toàn cho production');
+}
+
 // Helper: sắp xếp object theo key alphabet (VNPay yêu cầu)
 function sortObject(obj) {
   const sorted = {};
@@ -200,18 +205,9 @@ const vnpayGateway = {
     const hmac = crypto.createHmac('sha512', hashSecret);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-    // 🔍 DEBUG
-    console.log('\n=== VNPay DEBUG ===');
-    console.log('SecretKey length:', hashSecret.length);
-    console.log('SIGN DATA:', signData);
-    console.log('HASH:', signed);
-    console.log('===================\n');
-
     // Build URL với cùng encoding
     const urlParams = new URLSearchParams({ ...vnp_Params, vnp_SecureHash: signed });
     const paymentUrl = vnpayEndpoint + '?' + urlParams.toString();
-
-    console.log('PAYMENT URL:', paymentUrl);
 
     return {
       success: true,

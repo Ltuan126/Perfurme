@@ -78,3 +78,18 @@ export const intensityLabelsVN = {
   moderate: 'Ấm',
   strong: 'Đậm',
 };
+
+// Match a product (from static data or MongoDB) to its editorial metadata.
+// Static products have numeric `id` matching productMeta keys directly;
+// products from the API only have `_id` (ObjectId), so fall back to name match.
+export function getProductMeta(product) {
+  if (!product) return undefined;
+  const pId = product.id || product._id;
+  let meta = productMeta[pId];
+  if (!meta) {
+    meta = Object.values(productMeta).find(
+      m => m.name.toLowerCase() === (product.name || '').toLowerCase()
+    );
+  }
+  return meta;
+}

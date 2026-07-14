@@ -16,10 +16,11 @@ export default function Home() {
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/products`)
-      .then(res => res.ok ? res.json() : [])
+      .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setProducts(data);
+        const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : null);
+        if (list && list.length > 0) {
+          setProducts(list);
         } else {
           setProducts(localProducts);
         }

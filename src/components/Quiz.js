@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
-import { productMeta, allFamilies, allSeasons, allOccasions, allMoods, familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
+import { allFamilies, allSeasons, allOccasions, allMoods, familyLabelsVN, intensityLabelsVN, getProductMeta } from '../data/productMeta';
 import ProductCard from './ProductCard';
 import { saveQuizAnswers, loadQuizAnswers } from '../utils/quiz';
+import API_BASE_URL from '../config/api';
 
 const seasonLabelsVN = { any: 'Bất kỳ', spring: 'Mùa xuân', summer: 'Mùa hè', fall: 'Mùa thu', winter: 'Mùa đông' };
 const occasionLabelsVN = { everyday: 'Hằng ngày', office: 'Công sở', casual: 'Dạo phố', 'date-night': 'Hẹn hò', party: 'Tiệc tùng', special: 'Dịp đặc biệt' };
@@ -14,7 +15,7 @@ const moodLabelsVN = {
 };
 
 function scoreProduct(p, answers) {
-  const meta = productMeta[p.id];
+  const meta = getProductMeta(p);
   if (!meta) return 0;
   let score = 0;
   const famOverlap = (answers.families || []).filter(f => meta.families.includes(f)).length;
@@ -28,12 +29,13 @@ function scoreProduct(p, answers) {
 }
 
 function similarProducts(base, candidates, topN = 3) {
-  const baseMeta = productMeta[base.id];
+  const baseMeta = getProductMeta(base);
   if (!baseMeta) return [];
+  const baseId = base._id || base.id;
   return candidates
-    .filter(p => p.id !== base.id)
+    .filter(p => (p._id || p.id) !== baseId)
     .map(p => {
-      const m = productMeta[p.id];
+      const m = getProductMeta(p);
       if (!m) return { p, s: 0 };
       const fam = m.families.filter(f => baseMeta.families.includes(f)).length;
       const mood = m.moods.filter(x => baseMeta.moods.includes(x)).length;
@@ -55,7 +57,17 @@ export default function Quiz() {
     if (prev) setAnswers(prev);
   }, []);
 
-  const products = localProducts;
+  const [products, setProducts] = useState(localProducts);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/products`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        const list = Array.isArray(data?.data) ? data.data : null;
+        if (list && list.length > 0) setProducts(list);
+      })
+      .catch(() => {});
+  }, []);
 
   const onToggle = (k, v) => {
     setAnswers(prev => {
@@ -71,7 +83,7 @@ export default function Quiz() {
       .sort((a, b) => b.s - a.s);
     const top = scored.filter(x => x.s > 0).slice(0, 5).map(x => x.p);
     if (top.length === 0) return [];
-    const extra = similarProducts(top[0], products, 2).filter(p => !top.find(t => t.id === p.id));
+    const extra = similarProducts(top[0], products, 2).filter(p => !top.find(t => (t._id || t.id) === (p._id || p.id)));
     return [...top, ...extra].slice(0, 5);
   }, [done, answers, products]);
 
@@ -83,7 +95,7 @@ export default function Quiz() {
 
   if (done) {
     const [primary, ...rest] = results;
-    const primaryMeta = primary ? (productMeta[primary.id]) : null;
+    const primaryMeta = primary ? getProductMeta(primary) : null;
     const noteTag = primaryMeta
       ? [familyLabelsVN[primaryMeta.families?.[0]], intensityLabelsVN[primaryMeta.intensity]].filter(Boolean).join(' · ')
       : null;
@@ -115,7 +127,7 @@ export default function Quiz() {
                 <h2 className="title">Có thể bạn cũng thích</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12">
                   {rest.map(p => (
-                    <ProductCard key={`quiz-${p.id}`} product={p} />
+                    <ProductCard key={`quiz-${p._id || p.id}`} product={p} />
                   ))}
                 </div>
               </div>

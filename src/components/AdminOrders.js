@@ -2,15 +2,17 @@ import React, { useEffect, useState, useMemo } from 'react';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
-const STATUS_COLORS = {
-  pending: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  shipped: 'bg-cyan-100 text-cyan-700',
-  completed: 'bg-green-100 text-green-700',
-  canceled: 'bg-red-100 text-red-600',
+const STATUS_BADGE_CLASS = {
+  pending: 'status-badge',
+  confirmed: 'status-badge status-badge--active',
+  shipped: 'status-badge status-badge--active',
+  completed: 'status-badge status-badge--done',
+  canceled: 'status-badge status-badge--danger',
 };
 
 const STATUS_FLOW = ['pending', 'confirmed', 'shipped', 'completed'];
+
+const pill = (active) => `font-mono uppercase text-[10.5px] tracking-[0.14em] px-4 py-2 border transition-colors duration-300 ${active ? 'bg-ink text-cream border-ink' : 'bg-transparent text-ink border-hairline hover:border-ink'}`;
 
 export default function AdminOrders() {
   const { authFetch } = useAuth();
@@ -24,7 +26,7 @@ export default function AdminOrders() {
   useEffect(() => {
     authFetch(`${API_BASE_URL}/api/orders`)
       .then(res => res.json())
-      .then(data => { setOrders(data); setLoading(false); })
+      .then(data => { setOrders(Array.isArray(data?.data) ? data.data : []); setLoading(false); })
       .catch(() => { setError('Không thể tải đơn hàng!'); setLoading(false); });
   }, [authFetch]);
 
@@ -41,16 +43,18 @@ export default function AdminOrders() {
     const newStatus = editStatus[order._id];
     if (!newStatus || newStatus === order.status) return;
     setUpdatingId(order._id);
+    setError('');
     try {
       const res = await authFetch(`${API_BASE_URL}/api/orders/${order._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
-      const updated = await res.json();
-      setOrders(list => list.map(o => o._id === updated._id ? updated : o));
-    } catch {
-      setError('Cập nhật thất bại!');
+      const payload = await res.json();
+      if (!res.ok || !payload.success) throw new Error(payload.message || 'Cập nhật thất bại!');
+      setOrders(list => list.map(o => o._id === payload.data._id ? payload.data : o));
+    } catch (err) {
+      setError(err.message || 'Cập nhật thất bại!');
     } finally {
       setUpdatingId(null);
     }
@@ -64,75 +68,79 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-blue-700 mb-6">Quản lý đơn hàng</h1>
-      <div className="glass p-4 mb-6 flex flex-col md:flex-row gap-4 md:items-center justify-between">
-        <div className="flex gap-3 flex-wrap">
+    <div className="section">
+      <div className="eyebrow mb-2">Quản trị</div>
+      <h1 className="title text-left">Quản lý đơn hàng</h1>
+
+      <div className="mb-6 pb-6 border-b border-hairline flex flex-col md:flex-row gap-4 md:items-center justify-between">
+        <div className="flex gap-2 flex-wrap">
           {['all', 'pending', 'confirmed', 'shipped', 'completed', 'canceled'].map(s => (
-            <button key={s} onClick={() => setFilter(s)} className={`px-4 py-2 rounded-full text-sm font-medium border transition ${filter === s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white/60 hover:bg-white border-slate-300 text-slate-700'}`}>
+            <button key={s} onClick={() => setFilter(s)} className={pill(filter === s)}>
               {s === 'all' ? 'Tất cả' : s}
             </button>
           ))}
         </div>
-        <div className="text-sm text-slate-600">Tổng: <span className="font-semibold">{filtered.length}</span> đơn</div>
+        <div className="field-label mb-0">Tổng: <span className="text-ink">{filtered.length}</span> đơn</div>
       </div>
-      {loading && <div className="text-center py-10 text-slate-500">Đang tải...</div>}
-      {error && <div className="text-center text-red-500 mb-4">{error}</div>}
+
+      {loading && <div className="text-center py-10 text-muted font-light">Đang tải...</div>}
+      {error && <div className="text-center font-mono text-[11px] uppercase tracking-wider text-red-600 mb-4">{error}</div>}
       {!loading && filtered.length === 0 && (
-        <div className="glass p-10 text-center text-slate-500">Không có đơn nào.</div>
+        <div className="border border-hairline p-10 text-center text-muted font-light">Không có đơn nào.</div>
       )}
       {!loading && filtered.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl shadow">
-          <table className="w-full text-sm bg-white/90 backdrop-blur">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="bg-blue-100 text-blue-700">
-                <th className="p-3 text-left">Khách</th>
-                <th className="p-3 text-left">SĐT</th>
-                <th className="p-3 text-left">Địa chỉ</th>
-                <th className="p-3 text-left">Sản phẩm</th>
-                <th className="p-3 text-left">Trạng thái</th>
-                <th className="p-3 text-left">Hành động</th>
+              <tr className="border-b border-hairline">
+                <th className="text-left py-3 pr-4 font-mono uppercase text-[10.5px] tracking-[0.14em] text-label font-normal">Khách</th>
+                <th className="text-left py-3 pr-4 font-mono uppercase text-[10.5px] tracking-[0.14em] text-label font-normal">SĐT</th>
+                <th className="text-left py-3 pr-4 font-mono uppercase text-[10.5px] tracking-[0.14em] text-label font-normal">Địa chỉ</th>
+                <th className="text-left py-3 pr-4 font-mono uppercase text-[10.5px] tracking-[0.14em] text-label font-normal">Sản phẩm</th>
+                <th className="text-left py-3 pr-4 font-mono uppercase text-[10.5px] tracking-[0.14em] text-label font-normal">Trạng thái</th>
+                <th className="text-left py-3 font-mono uppercase text-[10.5px] tracking-[0.14em] text-label font-normal">Hành động</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-hairline">
               {filtered.map(order => {
                 const itemsTotal = order.cart?.reduce((sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0) || 0;
                 return (
-                  <tr key={order._id} className="border-t hover:bg-blue-50/60 transition">
-                    <td className="p-3 align-top min-w-[140px]">
-                      <div className="font-semibold text-slate-800">{order.name}</div>
-                      <div className="text-xs text-slate-500">{new Date(order.createdAt).toLocaleString()}</div>
-                      <div className="text-xs text-slate-600 font-medium mt-1">{itemsTotal.toLocaleString()} đ</div>
+                  <tr key={order._id} className="hover:bg-surface transition-colors duration-300">
+                    <td className="py-4 pr-4 align-top min-w-[140px]">
+                      <div className="font-serif text-lg text-ink">{order.name}</div>
+                      <div className="font-mono text-xs text-muted">{new Date(order.createdAt).toLocaleString('vi-VN')}</div>
+                      <div className="font-mono text-xs text-ink mt-1">{itemsTotal.toLocaleString('vi-VN')}₫</div>
                     </td>
-                    <td className="p-3 align-top">{order.phone}</td>
-                    <td className="p-3 align-top max-w-[200px] break-words">{order.address}</td>
-                    <td className="p-3 align-top">
+                    <td className="py-4 pr-4 align-top font-mono text-xs text-muted">{order.phone}</td>
+                    <td className="py-4 pr-4 align-top max-w-[200px] break-words font-mono text-xs text-muted">{order.address}</td>
+                    <td className="py-4 pr-4 align-top">
                       <ul className="space-y-1">
                         {order.cart?.map((c, idx) => (
                           <li key={idx} className="flex justify-between gap-3">
-                            <span className="text-slate-700 truncate max-w-[140px]" title={c.name}>{c.name}</span>
-                            <span className="text-slate-500 text-xs">x{c.quantity || 1}</span>
+                            <span className="text-ink font-light truncate max-w-[140px]" title={c.name}>{c.name}</span>
+                            <span className="text-label font-mono text-xs">×{c.quantity || 1}</span>
                           </li>
                         ))}
                       </ul>
                     </td>
-                    <td className="p-3 align-top">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold inline-block ${STATUS_COLORS[order.status] || 'bg-slate-200 text-slate-700'}`}>{order.status}</span>
+                    <td className="py-4 pr-4 align-top">
+                      <span className={STATUS_BADGE_CLASS[order.status] || 'status-badge'}>{order.status}</span>
                       <div className="mt-2">
                         <select
                           value={editStatus[order._id] || order.status}
                           onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                          className="text-xs border rounded-full px-2 py-1 bg-white focus:ring-2 focus:ring-blue-300"
+                          className="font-mono uppercase text-[10.5px] tracking-[0.1em] bg-transparent border-b border-hairline pb-1 outline-none text-ink"
                         >
                           {nextStatuses(order.status).map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </div>
                     </td>
-                    <td className="p-3 align-top">
+                    <td className="py-4 align-top">
                       <button
                         disabled={updatingId === order._id || (editStatus[order._id] || order.status) === order.status}
                         onClick={() => applyUpdate(order)}
-                        className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cyan-600 transition"
+                        className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+                        style={{ fontSize: '10px', letterSpacing: '0.12em', padding: '7px 14px' }}
                       >
                         {updatingId === order._id ? 'Đang lưu...' : 'Cập nhật'}
                       </button>
