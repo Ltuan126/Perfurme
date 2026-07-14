@@ -1,9 +1,7 @@
 /* ════════════════════════════════════════════
-   UserAuth – Le Labo–inspired minimal auth
-   Warm dark tones, clean luxury aesthetic
+   UserAuth — SILLAGE luxury-minimal auth
    ════════════════════════════════════════════ */
 
-/* ── PAGE ── */
 .auth-page {
   position: fixed;
   inset: 0;
@@ -11,21 +9,18 @@
   z-index: 50;
   opacity: 0;
   transition: opacity 0.5s ease;
-  font-family: 'Inter', sans-serif;
+  background: #F5F2EB;
 }
 
 .auth-page--visible {
   opacity: 1;
 }
 
-/* ═══════════════════════════════
-   LEFT — HERO IMAGE
-   ═══════════════════════════════ */
+/* ═══ IMAGE PANEL ═══ */
 .auth-hero {
   position: relative;
   flex: 1;
   overflow: hidden;
-  background: #0e0c0a;
 }
 
 .auth-hero__img {
@@ -40,51 +35,47 @@
 .auth-hero__overlay {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg,
-      transparent 0%,
-      transparent 55%,
-      rgba(14, 12, 10, 0.6) 80%,
-      rgba(14, 12, 10, 0.92) 100%);
+  background: linear-gradient(180deg, transparent 0%, transparent 50%, rgba(25, 26, 22, 0.55) 82%, rgba(25, 26, 22, 0.88) 100%);
 }
 
-/* Brand at bottom-left of hero */
 .auth-hero__brand {
   position: absolute;
   bottom: 0;
   left: 0;
   z-index: 2;
-  padding: 2.5rem;
+  padding: 2.75rem;
 }
 
 .auth-hero__brand-name {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  color: #fff;
-  margin-bottom: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  color: #F5F2EB;
+  margin-bottom: 6px;
 }
 
 .auth-hero__brand-sub {
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  color: rgba(245, 242, 235, 0.55);
   margin-bottom: 1.25rem;
 }
 
 .auth-hero__brand-tagline {
-  font-size: 12px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.45);
-  line-height: 1.7;
-  margin: 0;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
   font-style: italic;
+  color: rgba(245, 242, 235, 0.6);
+  line-height: 1.8;
+  margin: 0;
 }
 
-/* ═══════════════════════════════
-   RIGHT — FORM PANEL
-   ═══════════════════════════════ */
+/* ═══ FORM PANEL ═══ */
 .auth-form-wrapper {
   width: 480px;
   min-width: 380px;
@@ -92,8 +83,10 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem;
-  background: #161412;
+  background: #F5F2EB;
   overflow-y: auto;
+  border-left: 1px solid #DFDBD0;
+  border-right: 1px solid #DFDBD0;
 }
 
 .auth-card {
@@ -104,69 +97,69 @@
   align-items: center;
 }
 
-/* ── Brand header (top of form) ── */
 .auth-brand-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .auth-brand-header__name {
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  color: #1A1A17;
 }
 
 .auth-brand-header__sub {
-  font-size: 10px;
-  font-weight: 500;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
   letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.35);
-  margin-top: 4px;
+  text-transform: uppercase;
+  color: #8A8779;
+  margin-top: 6px;
 }
 
-/* ── Titles ── */
 .auth-card__title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.25rem;
+  font-weight: 300;
+  color: #1A1A17;
+  margin: 0 0 8px;
+  line-height: 1.1;
 }
 
 .auth-card__subtitle {
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.35);
-  margin: 0 0 1.75rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  color: #55534C;
+  margin: 0 0 2rem;
   text-align: center;
 }
 
-/* ── Redirect message ── */
 .auth-redirect-msg {
   width: 100%;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 12px 16px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  font-weight: 300;
   text-align: center;
-  color: #c9a96e;
-  background: rgba(201, 169, 110, 0.08);
-  border: 1px solid rgba(201, 169, 110, 0.15);
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
+  color: var(--accent, #8A9B9A);
+  border: 1px solid #DFDBD0;
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
 }
 
-/* ── FORM ── */
 .auth-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
 }
 
 .auth-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
 .auth-field--animated {
@@ -178,15 +171,6 @@
   to   { opacity: 1; max-height: 100px; transform: translateY(0); }
 }
 
-.auth-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding-left: 2px;
-}
-
 .auth-input-wrap {
   position: relative;
   display: flex;
@@ -194,59 +178,47 @@
 }
 
 .auth-input-icon {
-  position: absolute;
-  left: 16px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.18);
-  transition: color 0.3s;
-  z-index: 1;
+  display: none;
 }
 
 .auth-input {
   width: 100%;
-  padding: 14px 16px 14px 44px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #CBC7BB;
+  padding: 10px 30px 10px 2px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: #1A1A17;
   outline: none;
-  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
-  font-family: inherit;
+  transition: border-color 0.3s;
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.18);
-  font-weight: 400;
+  color: #B0AC9C;
+  font-weight: 300;
 }
 
 .auth-input:focus {
-  border-color: rgba(201, 169, 110, 0.35);
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.06);
-}
-
-.auth-input-wrap:focus-within .auth-input-icon {
-  color: rgba(201, 169, 110, 0.7);
+  border-bottom-color: var(--accent, #8A9B9A);
 }
 
 /* password toggle */
 .auth-toggle-pass {
   position: absolute;
-  right: 14px;
+  right: 2px;
   background: none;
   border: none;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+  color: #8A8779;
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s;
-  z-index: 1;
 }
 
 .auth-toggle-pass:hover {
-  color: rgba(255, 255, 255, 0.5);
+  color: #1A1A17;
 }
 
 /* ── STRENGTH ── */
@@ -261,18 +233,20 @@
   flex: 1;
   display: flex;
   gap: 3px;
-  height: 4px;
+  height: 3px;
 }
 
 .auth-strength__bar-segment {
   flex: 1;
-  border-radius: 100px;
   transition: background 0.4s, transform 0.4s;
 }
 
 .auth-strength__label {
-  font-size: 10px;
-  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
   min-width: 65px;
   text-align: right;
   transition: color 0.3s;
@@ -280,14 +254,13 @@
 
 /* ── ERROR ── */
 .auth-error {
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 12px 16px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  font-weight: 300;
   text-align: center;
-  color: #fca5a5;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+  border: 1px solid rgba(185, 28, 28, 0.25);
   animation: authShake 0.4s ease;
 }
 
@@ -302,31 +275,26 @@
 /* ── SUBMIT ── */
 .auth-submit {
   width: 100%;
-  padding: 14px;
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
+  padding: 15px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #F5F2EB;
+  border: 1px solid #1A1A17;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-family: inherit;
-  background: #3a3530;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  background: #1A1A17;
+  transition: background 0.3s, border-color 0.3s;
 }
 
 .auth-submit:hover:not(:disabled) {
-  background: #4a4540;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.auth-submit:active:not(:disabled) {
-  transform: translateY(0);
+  background: var(--accent, #8A9B9A);
+  border-color: var(--accent, #8A9B9A);
 }
 
 .auth-submit:disabled {
@@ -346,10 +314,10 @@
 /* ── SPINNER ── */
 .auth-spinner {
   display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #fff;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(245, 242, 235, 0.3);
+  border-top-color: #F5F2EB;
   border-radius: 50%;
   animation: authSpin 0.7s linear infinite;
 }
@@ -360,28 +328,32 @@
 
 /* ── TOGGLE ── */
 .auth-toggle {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  font-family: 'Jost', sans-serif;
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.3);
+  font-weight: 300;
+  color: #8A8779;
 }
 
 .auth-toggle__btn {
   background: none;
   border: none;
-  color: #c9a96e;
-  font-weight: 700;
-  font-size: 12.5px;
+  color: #1A1A17;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   cursor: pointer;
   padding: 0;
   transition: color 0.2s;
-  font-family: inherit;
 }
 
 .auth-toggle__btn:hover {
-  color: #e0c590;
+  color: var(--accent, #8A9B9A);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -395,7 +367,8 @@
   }
 
   .auth-hero {
-    height: 300px;
+    height: 260px;
+    order: -1 !important;
   }
 
   .auth-hero__brand {
@@ -407,16 +380,18 @@
     min-width: unset;
     flex: 1;
     padding: 1.5rem;
+    border: none;
+    order: 0 !important;
   }
 }
 
 @media (max-width: 480px) {
   .auth-hero {
-    height: 240px;
+    height: 200px;
   }
 
   .auth-hero__brand-name {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .auth-hero__brand-tagline {
@@ -427,16 +402,7 @@
     padding: 1.25rem;
   }
 
-  .auth-brand-header__name {
-    font-size: 1.4rem;
-  }
-
   .auth-card__title {
-    font-size: 1.1rem;
-  }
-
-  .auth-input {
-    padding: 12px 14px 12px 40px;
-    font-size: 13px;
+    font-size: 1.75rem;
   }
 }
