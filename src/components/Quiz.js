@@ -1,25 +1,28 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
-import { productMeta, allFamilies, allSeasons, allOccasions, allMoods } from '../data/productMeta';
+import { productMeta, allFamilies, allSeasons, allOccasions, allMoods, familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
 import ProductCard from './ProductCard';
 import { saveQuizAnswers, loadQuizAnswers } from '../utils/quiz';
+
+const seasonLabelsVN = { any: 'Bất kỳ', spring: 'Mùa xuân', summer: 'Mùa hè', fall: 'Mùa thu', winter: 'Mùa đông' };
+const occasionLabelsVN = { everyday: 'Hằng ngày', office: 'Công sở', casual: 'Dạo phố', 'date-night': 'Hẹn hò', party: 'Tiệc tùng', special: 'Dịp đặc biệt' };
+const moodLabelsVN = {
+  'fresh-energizing': 'Tươi mát', 'calm-clean': 'Điềm tĩnh', 'bold-confident': 'Tự tin',
+  romantic: 'Lãng mạn', sophisticated: 'Tinh tế', 'bright-happy': 'Rạng rỡ',
+  'modern-minimal': 'Hiện đại', atmospheric: 'Sâu lắng',
+};
 
 function scoreProduct(p, answers) {
   const meta = productMeta[p.id];
   if (!meta) return 0;
   let score = 0;
-  // Rule-based weights
-  // Families highest priority
   const famOverlap = (answers.families || []).filter(f => meta.families.includes(f)).length;
   score += famOverlap * 5;
-  // Season
   if (answers.season && (answers.season === 'any' || meta.seasons.includes(answers.season))) score += 2;
-  // Occasion
   if (answers.occasion && meta.occasions.includes(answers.occasion)) score += 2;
-  // Mood
   const moodOverlap = (answers.moods || []).filter(m => meta.moods.includes(m)).length;
   score += moodOverlap * 3;
-  // Intensity preference (optional)
   if (answers.intensity && answers.intensity === meta.intensity) score += 1;
   return score;
 }
@@ -34,10 +37,10 @@ function similarProducts(base, candidates, topN = 3) {
       if (!m) return { p, s: 0 };
       const fam = m.families.filter(f => baseMeta.families.includes(f)).length;
       const mood = m.moods.filter(x => baseMeta.moods.includes(x)).length;
-      const s = fam * 2 + mood; // simple content-based
+      const s = fam * 2 + mood;
       return { p, s };
     })
-    .sort((a,b) => b.s - a.s)
+    .sort((a, b) => b.s - a.s)
     .slice(0, topN)
     .map(x => x.p);
 }
@@ -52,7 +55,7 @@ export default function Quiz() {
     if (prev) setAnswers(prev);
   }, []);
 
-  const products = localProducts; // can replace with API list if available
+  const products = localProducts;
 
   const onToggle = (k, v) => {
     setAnswers(prev => {
@@ -65,90 +68,138 @@ export default function Quiz() {
   const results = useMemo(() => {
     if (!done) return [];
     const scored = products.map(p => ({ p, s: scoreProduct(p, answers) }))
-      .sort((a,b) => b.s - a.s);
+      .sort((a, b) => b.s - a.s);
     const top = scored.filter(x => x.s > 0).slice(0, 5).map(x => x.p);
     if (top.length === 0) return [];
-    // expand with similar products to diversify
     const extra = similarProducts(top[0], products, 2).filter(p => !top.find(t => t.id === p.id));
     return [...top, ...extra].slice(0, 5);
   }, [done, answers, products]);
 
-  const next = () => setStep(s => Math.min(4, s + 1));
+  const next = () => setStep(s => Math.min(3, s + 1));
   const prev = () => setStep(s => Math.max(1, s - 1));
 
-  return (
-    <div className="section max-w-3xl">
-      <h1 className="title text-blue-700">Perfume Quiz</h1>
-      {!done ? (
-        <div className="glass p-6 space-y-6">
-          {step === 1 && (
-            <div>
-              <div className="font-semibold mb-2">Bạn thích nhóm hương nào? (chọn 1-3)</div>
-              <div className="flex flex-wrap gap-2">
-                {allFamilies.map(f => (
-                  <button key={f} onClick={() => onToggle('families', f)} className={`px-3 py-1 rounded-full border ${answers.families?.includes(f) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-300'}`}>{f}</button>
-                ))}
-              </div>
+  const optionBtn = (active) => `px-5 py-4 border text-left font-mono uppercase text-[12px] tracking-[0.1em] transition-colors ${active ? 'text-oncream2' : 'text-mutedDark border-hairlineDark hover:text-oncream2'}`;
+  const optionStyle = (active) => active ? { borderColor: 'var(--accent)', background: 'var(--accent-soft)' } : {};
+
+  if (done) {
+    const [primary, ...rest] = results;
+    const primaryMeta = primary ? (productMeta[primary.id]) : null;
+    const noteTag = primaryMeta
+      ? [familyLabelsVN[primaryMeta.families?.[0]], intensityLabelsVN[primaryMeta.intensity]].filter(Boolean).join(' · ')
+      : null;
+
+    return (
+      <div className="section">
+        {!primary ? (
+          <div className="text-center py-16">
+            <div className="eyebrow mb-4">Chưa có gợi ý phù hợp</div>
+            <p className="text-muted font-light mb-8">Hãy chọn nhóm hương hoặc mood khác nhé.</p>
+            <button onClick={() => { setDone(false); setStep(1); }} className="btn-outline">Làm lại</button>
+          </div>
+        ) : (
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="eyebrow mb-4">Hương của bạn</div>
+            {noteTag && <div className="font-mono uppercase text-[11px] tracking-[0.14em] mb-3" style={{ color: 'var(--accent)' }}>{noteTag}</div>}
+            <h1 className="font-serif font-light text-ink mb-6" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', lineHeight: 1.05 }}>
+              {primary.name}
+            </h1>
+            <p className="text-muted font-light max-w-xl mx-auto mb-10" style={{ lineHeight: 1.8 }}>{primary.description}</p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link to={`/product/${primary._id || primary.id}`} className="btn-primary">Xem chi tiết</Link>
+              <button onClick={() => { setDone(false); setStep(1); }} className="btn-outline">Làm lại</button>
             </div>
-          )}
-          {step === 2 && (
-            <div>
-              <div className="font-semibold mb-2">Bạn muốn dùng vào mùa nào?</div>
-              <div className="flex flex-wrap gap-2">
-                {['any', ...allSeasons.filter(s=>s!=='any')].map(s => (
-                  <button key={s} onClick={() => setAnswers(a=>({ ...a, season: s }))} className={`px-3 py-1 rounded-full border ${answers.season===s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-300'}`}>{s}</button>
-                ))}
-              </div>
-            </div>
-          )}
-          {step === 3 && (
-            <div className="grid gap-6">
-              <div>
-                <div className="font-semibold mb-2">Dịp sử dụng?</div>
-                <div className="flex flex-wrap gap-2">
-                  {allOccasions.map(o => (
-                    <button key={o} onClick={() => setAnswers(a=>({ ...a, occasion: o }))} className={`px-3 py-1 rounded-full border ${answers.occasion===o ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-300'}`}>{o}</button>
+
+            {rest.length > 0 && (
+              <div className="mt-20 pt-12 hairline-t text-left">
+                <div className="eyebrow text-center mb-3">Gợi ý thêm</div>
+                <h2 className="title">Có thể bạn cũng thích</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12">
+                  {rest.map(p => (
+                    <ProductCard key={`quiz-${p.id}`} product={p} />
                   ))}
                 </div>
               </div>
-              <div>
-                <div className="font-semibold mb-2">Mood/cảm xúc?</div>
-                <div className="flex flex-wrap gap-2">
-                  {allMoods.map(m => (
-                    <button key={m} onClick={() => onToggle('moods', m)} className={`px-3 py-1 rounded-full border ${answers.moods?.includes(m) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-300'}`}>{m}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <button onClick={prev} disabled={step===1} className="px-4 py-2 rounded-full border border-slate-300 text-slate-700 disabled:opacity-50">← Trước</button>
-            {step < 3 ? (
-              <button onClick={next} className="btn-primary">Tiếp tục →</button>
-            ) : (
-              <button onClick={() => { setDone(true); saveQuizAnswers(answers); }} className="btn-primary">Xem gợi ý</button>
             )}
           </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-charcoal text-oncream2 min-h-[70vh]">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div className="font-mono uppercase text-[11px] tracking-[0.28em] mb-6" style={{ color: 'var(--accent)' }}>
+          Bước {step}/3
         </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-blue-700">Gợi ý cho bạn</h2>
-            <button onClick={() => { setDone(false); setStep(1); }} className="px-3 py-1 rounded-full border">Làm lại</button>
-          </div>
-          {results.length === 0 ? (
-            <div className="glass p-6 text-slate-600">Chưa có gợi ý phù hợp. Hãy chọn nhóm hương/mood khác nhé.</div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {results.map(p => (
-                <ProductCard key={`quiz-${p.id}`} product={p} />
+
+        {step === 1 && (
+          <div>
+            <h1 className="font-serif font-light mb-10" style={{ fontSize: 'clamp(2rem, 4.5vw, 3rem)', lineHeight: 1.15, color: '#F2EFE9' }}>
+              Bạn thích nhóm hương nào?
+            </h1>
+            <div className="grid grid-cols-2 gap-3">
+              {allFamilies.map(f => (
+                <button key={f} onClick={() => onToggle('families', f)} className={optionBtn(answers.families?.includes(f))} style={optionStyle(answers.families?.includes(f))}>
+                  {familyLabelsVN[f] || f}
+                </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <h1 className="font-serif font-light mb-10" style={{ fontSize: 'clamp(2rem, 4.5vw, 3rem)', lineHeight: 1.15, color: '#F2EFE9' }}>
+              Bạn muốn dùng vào mùa nào?
+            </h1>
+            <div className="grid grid-cols-2 gap-3">
+              {allSeasons.map(s => (
+                <button key={s} onClick={() => setAnswers(a => ({ ...a, season: s }))} className={optionBtn(answers.season === s)} style={optionStyle(answers.season === s)}>
+                  {seasonLabelsVN[s] || s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-12">
+            <div>
+              <h1 className="font-serif font-light mb-6" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: 1.15, color: '#F2EFE9' }}>
+                Dịp sử dụng?
+              </h1>
+              <div className="grid grid-cols-2 gap-3">
+                {allOccasions.map(o => (
+                  <button key={o} onClick={() => setAnswers(a => ({ ...a, occasion: o }))} className={optionBtn(answers.occasion === o)} style={optionStyle(answers.occasion === o)}>
+                    {occasionLabelsVN[o] || o}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h2 className="font-serif font-light mb-6" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: 1.15, color: '#F2EFE9' }}>
+                Mood/cảm xúc?
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                {allMoods.map(m => (
+                  <button key={m} onClick={() => onToggle('moods', m)} className={optionBtn(answers.moods?.includes(m))} style={optionStyle(answers.moods?.includes(m))}>
+                    {moodLabelsVN[m] || m}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between mt-12 pt-8" style={{ borderTop: '1px solid #2C2D26' }}>
+          <button onClick={prev} disabled={step === 1} className="font-mono uppercase text-[11px] tracking-[0.14em] text-mutedDark disabled:opacity-30">← Trước</button>
+          {step < 3 ? (
+            <button onClick={next} className="btn-outline btn-outline--light">Tiếp tục →</button>
+          ) : (
+            <button onClick={() => { setDone(true); saveQuizAnswers(answers); }} className="btn-outline btn-outline--light">Xem gợi ý</button>
           )}
         </div>
-      )}
-      <div className="mt-6 text-sm text-slate-500">
-        Gợi ý dựa trên rule-based (ưu tiên nhóm hương, mùa, mood) + content-based theo nhóm hương tương tự. Có thể mở rộng collaborative filtering khi đủ dữ liệu hành vi.
       </div>
     </div>
   );
