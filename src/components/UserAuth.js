@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
 import './UserAuth.css';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
 /* ───────── strength helpers ───────── */
 const STRENGTH_LABELS = ['', 'Yếu', 'Trung bình', 'Khá', 'Mạnh', 'Rất mạnh'];
-const STRENGTH_COLORS = ['#334155', '#ef4444', '#f59e0b', '#eab308', '#22c55e', '#06b6d4'];
+const STRENGTH_COLORS = ['#DFDBD0', '#c0392b', '#b7791f', '#8A9B9A', '#7E8666', '#55534C'];
 
 export default function UserAuth() {
   const { login } = useAuth();
@@ -75,32 +75,31 @@ export default function UserAuth() {
 
   return (
     <div className={`auth-page ${mounted ? 'auth-page--visible' : ''}`}>
-      {/* ── LEFT: IMAGE ── */}
-      <div className="auth-hero">
+      {/* ── IMAGE PANEL — right for Login, left for Register ── */}
+      <div className="auth-hero" style={{ order: isRegister ? 1 : 2 }}>
         <img
           src={`${process.env.PUBLIC_URL}/auth-hero.png`}
-          alt="Perfume"
+          alt="SILLAGE"
           className="auth-hero__img"
         />
         <div className="auth-hero__overlay" />
         <div className="auth-hero__brand">
-          <div className="auth-hero__brand-name">PERFUME</div>
-          <div className="auth-hero__brand-sub">EXPERIENCE — VIETNAM</div>
+          <div className="auth-hero__brand-name">SILLAGE</div>
+          <div className="auth-hero__brand-sub">Nước hoa niche — Việt Nam</div>
           <p className="auth-hero__brand-tagline">
-            Crafted with passion.<br />
-            Premium fragrances.<br />
-            Made for those who feel deeper.
+            Điều chế theo mẻ nhỏ.<br />
+            Mùi hương không thể trộn lẫn.<br />
+            Dành cho những ai muốn được ghi nhớ.
           </p>
         </div>
       </div>
 
-      {/* ── RIGHT: FORM ── */}
-      <div className="auth-form-wrapper">
+      {/* ── FORM PANEL ── */}
+      <div className="auth-form-wrapper" style={{ order: isRegister ? 2 : 1 }}>
         <div className="auth-card">
-          {/* Brand header */}
           <div className="auth-brand-header">
-            <div className="auth-brand-header__name">PERFUME</div>
-            <div className="auth-brand-header__sub">EXPERIENCE — VIETNAM</div>
+            <div className="auth-brand-header__name">SILLAGE</div>
+            <div className="auth-brand-header__sub">Nước hoa niche — Việt Nam</div>
           </div>
 
           <h2 className="auth-card__title">
@@ -119,9 +118,8 @@ export default function UserAuth() {
           <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
             {/* Username */}
             <div className="auth-field">
-              <label className="auth-label" htmlFor="auth-user">Tên đăng nhập</label>
+              <label className="field-label" htmlFor="auth-user">Tên đăng nhập</label>
               <div className="auth-input-wrap">
-                <FaUser className="auth-input-icon" />
                 <input
                   id="auth-user"
                   type="text"
@@ -136,9 +134,8 @@ export default function UserAuth() {
 
             {/* Password */}
             <div className="auth-field">
-              <label className="auth-label" htmlFor="auth-pass">Mật khẩu</label>
+              <label className="field-label" htmlFor="auth-pass">Mật khẩu</label>
               <div className="auth-input-wrap">
-                <FaLock className="auth-input-icon" />
                 <input
                   id="auth-pass"
                   type={showPass ? 'text' : 'password'}
@@ -162,9 +159,8 @@ export default function UserAuth() {
             {/* Confirm Password */}
             {isRegister && (
               <div className="auth-field auth-field--animated">
-                <label className="auth-label" htmlFor="auth-confirm">Xác nhận mật khẩu</label>
+                <label className="field-label" htmlFor="auth-confirm">Xác nhận mật khẩu</label>
                 <div className="auth-input-wrap">
-                  <FaLock className="auth-input-icon" />
                   <input
                     id="auth-confirm"
                     type={showPass ? 'text' : 'password'}
@@ -186,7 +182,7 @@ export default function UserAuth() {
                       key={i}
                       className="auth-strength__bar-segment"
                       style={{
-                        background: i < strength ? STRENGTH_COLORS[strength] : '#1e293b',
+                        background: i < strength ? STRENGTH_COLORS[strength] : '#DFDBD0',
                         transform: i < strength ? 'scaleX(1)' : 'scaleX(0.4)',
                       }}
                     />
