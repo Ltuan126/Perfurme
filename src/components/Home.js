@@ -40,9 +40,12 @@ export default function Home() {
       <section className="bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div className="order-2 md:order-1">
-            <div className="img-placeholder" style={{ aspectRatio: '1 / 1.05' }}>
-              [ ẢNH HERO DỌC — CHÂN DUNG + FLACON ]
-            </div>
+            <img
+              src="https://lelabo.ips.photos/lelabo-java/images/categories/107_LARGE_IMAGE_02_5595.jpg"
+              alt="SILLAGE — chân dung và flacon"
+              className="w-full object-cover border border-hairline"
+              style={{ aspectRatio: '1 / 1.05' }}
+            />
           </div>
           <div className="order-1 md:order-2">
             <div className="eyebrow mb-5">Extrait — Édition Nº7</div>
@@ -97,9 +100,12 @@ export default function Home() {
       {/* Custom blend CTA */}
       <section className="bg-charcoal text-oncream2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
-          <div className="img-placeholder img-placeholder--dark" style={{ aspectRatio: '1 / 1.05' }}>
-            [ ẢNH ATELIER — PHA CHẾ THỦ CÔNG ]
-          </div>
+          <img
+            src="https://lelaboeu-java.s3.amazonaws.com/images/cms/7_ONE_SIZE_IMAGE_01_7809_344429774.jpg"
+            alt="SILLAGE — pha chế thủ công"
+            className="w-full object-cover border border-hairlineDark"
+            style={{ aspectRatio: '1 / 1.05' }}
+          />
           <div>
             <div className="eyebrow mb-5" style={{ color: '#9A9789' }}>Dịch vụ riêng</div>
             <h2 className="font-serif font-light" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', lineHeight: 1.1, color: '#F2EFE9' }}>
