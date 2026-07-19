@@ -12,8 +12,8 @@ export default function PaymentCallback() {
   useEffect(() => {
     const checkPaymentStatus = async () => {
       try {
-        // Get order ID from URL or stored
-        let ordId = searchParams.get('orderId');
+        // VNPay redirect về với vnp_TxnRef (= orderId); Momo/khác dùng orderId
+        let ordId = searchParams.get('orderId') || searchParams.get('vnp_TxnRef');
 
         if (!ordId) {
           setStatus('failed');
@@ -22,6 +22,13 @@ export default function PaymentCallback() {
         }
 
         setOrderId(ordId);
+
+        // Redirect từ VNPay mang theo chữ ký → chuyển tiếp cho backend verify
+        // và cập nhật trạng thái đơn (sandbox thường không có IPN server-to-server)
+        if (searchParams.get('vnp_SecureHash')) {
+          await fetch(`${API_BASE_URL}/api/payment/callback?method=vnpay&${searchParams.toString()}`)
+            .catch(() => {});
+        }
 
         // Check payment status
         const res = await fetch(`${API_BASE_URL}/api/payment/status/${ordId}`);

@@ -86,6 +86,15 @@ const paymentCallback = asyncHandler(async (req, res) => {
       throw new AppError('Không tìm thấy đơn hàng', 404);
     }
 
+    // Idempotent: IPN và return-URL có thể cùng gọi — chỉ xử lý lần đầu
+    if (order.paymentStatus === 'paid') {
+      return res.json({
+        success: true,
+        message: 'Đơn hàng đã được xác nhận thanh toán trước đó',
+        orderId: order._id
+      });
+    }
+
     order.paymentStatus = 'paid';
     order.paidAt = new Date();
     order.paymentRef = verification.transId || verification.transactionNo || payload.transId;
