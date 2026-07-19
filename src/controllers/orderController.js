@@ -1,24 +1,25 @@
+const mongoose = require('../db');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
-const paymentService = require('../services/paymentService');
+const { computeCartPricing } = require('../services/orderPricing');
+const { calcEarnedPoints, nextTier } = require('../services/loyalty');
 
 // --- Helpers ---
 
-function calcEarnedPoints(amount) {
-    return Math.floor((amount || 0) / 10000);
-}
-
-function nextTier(points) {
-    if (points >= 2000) return 'VIP';
-    if (points >= 1000) return 'Gold';
-    if (points >= 500) return 'Silver';
-    return 'None';
-}
-
-function isMini(item) {
-    return item && (item.sizeLabel === '15ml' || /mini/i.test(item.name || ''));
+// Tìm sản phẩm theo productId (ưu tiên) rồi mới fallback theo tên —
+// tên có thể đổi/trùng, còn ObjectId là bất biến.
+async function resolveProduct(item) {
+    const candidateId = item.productId || item._id;
+    if (candidateId && mongoose.Types.ObjectId.isValid(String(candidateId))) {
+        const byId = await Product.findById(candidateId);
+        if (byId) return byId;
+    }
+    if (item.name) {
+        return Product.findOne({ name: item.name });
+    }
+    return null;
 }
 
 // @desc    Tạo đơn hàng COD (cộng điểm + bundle discount)
@@ -33,17 +34,16 @@ const createOrder = asyncHandler(async (req, res) => {
         throw new AppError('Giỏ hàng không được rỗng', 400);
     }
 
-    let subtotal = 0;
     const resolvedCart = [];
 
     for (const item of cart) {
-        if (!item.name) {
-            throw new AppError('Sản phẩm trong giỏ hàng thiếu tên', 400);
+        if (!item.name && !item.productId && !item._id) {
+            throw new AppError('Sản phẩm trong giỏ hàng thiếu thông tin định danh', 400);
         }
 
-        const dbProduct = await Product.findOne({ name: item.name });
+        const dbProduct = await resolveProduct(item);
         if (!dbProduct) {
-            throw new AppError(`Không tìm thấy sản phẩm: ${item.name}`, 404);
+            throw new AppError(`Không tìm thấy sản phẩm: ${item.name || item.productId || item._id}`, 404);
         }
 
         let correctPrice = dbProduct.price;
@@ -55,29 +55,17 @@ const createOrder = asyncHandler(async (req, res) => {
         }
 
         const qty = Math.max(1, Number(item.quantity) || 1);
-        subtotal += correctPrice * qty;
 
         resolvedCart.push({
-            name: item.name,
+            productId: dbProduct._id,
+            name: dbProduct.name,
             price: correctPrice,
             quantity: qty,
             sizeLabel: item.sizeLabel || null
         });
     }
 
-    // Bundle discount: 3+ mini bottles → 10% off minis
-    const miniCount = resolvedCart.reduce(
-        (n, i) => n + (isMini(i) ? i.quantity : 0),
-        0
-    );
-    let discount = 0;
-    if (miniCount >= 3) {
-        const minisTotal = resolvedCart
-            .filter(i => isMini(i))
-            .reduce((s, i) => s + i.price * i.quantity, 0);
-        discount += Math.round(minisTotal * 0.10);
-    }
-    const total = Math.max(0, subtotal - discount);
+    const { subtotal, discount, total } = computeCartPricing(resolvedCart);
 
     const order = await Order.create({
         name: body.name,
@@ -116,6 +104,16 @@ const getOrders = asyncHandler(async (req, res) => {
     res.json({ success: true, count: orders.length, data: orders });
 });
 
+// @desc    Lịch sử đơn hàng của user đang đăng nhập
+// @route   GET /api/orders/mine
+// @access  Private
+const getMyOrders = asyncHandler(async (req, res) => {
+    const orders = await Order.find({ username: req.user.username })
+        .sort({ createdAt: -1 })
+        .limit(50);
+    res.json({ success: true, count: orders.length, data: orders });
+});
+
 // @desc    Cập nhật trạng thái đơn hàng
 // @route   PUT /api/orders/:id
 // @access  Admin
@@ -126,18 +124,22 @@ const updateOrder = asyncHandler(async (req, res) => {
     }
 
     if (req.body.status === 'confirmed' && existing.status === 'pending') {
-        // Kiểm tra đủ tồn kho cho TẤT CẢ item trước khi trừ bất kỳ item nào
+        // Trừ tồn kho atomic: chỉ trừ khi stock còn đủ (điều kiện $gte ngay trong update,
+        // tránh race khi 2 đơn cùng được confirm). Nếu thiếu hàng giữa chừng thì hoàn lại
+        // các item đã trừ trước đó rồi báo lỗi.
+        const deducted = [];
         for (const item of existing.cart) {
-            const product = await Product.findOne({ name: item.name });
-            if (!product || product.stock < item.quantity) {
-                throw new AppError(
-                    `Sản phẩm "${item.name}" không đủ tồn kho (còn ${product?.stock ?? 0}, cần ${item.quantity})`,
-                    400
-                );
+            const filter = item.productId
+                ? { _id: item.productId, stock: { $gte: item.quantity } }
+                : { name: item.name, stock: { $gte: item.quantity } };
+            const updated = await Product.findOneAndUpdate(filter, { $inc: { stock: -item.quantity } });
+            if (!updated) {
+                for (const d of deducted) {
+                    await Product.findByIdAndUpdate(d.id, { $inc: { stock: d.quantity } });
+                }
+                throw new AppError(`Sản phẩm "${item.name}" không đủ tồn kho (cần ${item.quantity})`, 400);
             }
-        }
-        for (const item of existing.cart) {
-            await Product.findOneAndUpdate({ name: item.name }, { $inc: { stock: -item.quantity } });
+            deducted.push({ id: updated._id, quantity: item.quantity });
         }
     }
 
@@ -197,6 +199,7 @@ const trackOrder = asyncHandler(async (req, res) => {
 module.exports = {
     createOrder,
     getOrders,
+    getMyOrders,
     updateOrder,
     trackOrder
 };

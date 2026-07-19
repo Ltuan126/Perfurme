@@ -1,6 +1,12 @@
 const mongoose = require('../db');
 
 const orderItemSchema = new mongoose.Schema({
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        default: null,
+        index: true
+    },
     name: {
         type: String,
         required: [true, 'Tên sản phẩm là bắt buộc'],

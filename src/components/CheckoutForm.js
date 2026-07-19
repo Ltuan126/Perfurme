@@ -49,10 +49,17 @@ export default function CheckoutForm({ cart, onOrderSuccess }) {
     const gatewayMethod = paymentMethod === 'cod' ? 'cod' : 'vnpay';
     try {
       const fullAddress = form.city ? `${form.address}, ${form.city}` : form.address;
+      // Gửi payload tối thiểu: backend tra lại giá theo productId (ưu tiên) hoặc tên
+      const cartPayload = items.map(i => ({
+        productId: i._id || undefined,
+        name: i.name,
+        quantity: Number(i.quantity) || 1,
+        sizeLabel: i.sizeLabel || undefined,
+      }));
       const res = await authFetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, phone: form.phone, address: fullAddress, note: form.note, cart: items, paymentMethod: gatewayMethod }),
+        body: JSON.stringify({ name: form.name, phone: form.phone, address: fullAddress, note: form.note, cart: cartPayload, paymentMethod: gatewayMethod }),
       });
       if (!res.ok) throw new Error('Lỗi đặt hàng!');
       const payload = await res.json();
