@@ -4,7 +4,6 @@
  */
 
 const crypto = require('crypto');
-const qs = require('qs'); // dùng qs.stringify giống official VNPay NodeJS sample
 
 if (process.env.NODE_ENV === 'production') {
   if (!process.env.MOMO_SECRET_KEY) throw new Error('MOMO_SECRET_KEY chưa được cấu hình an toàn cho production');
@@ -16,6 +15,16 @@ function sortObject(obj) {
   const sorted = {};
   Object.keys(obj).sort().forEach(key => { sorted[key] = obj[key]; });
   return sorted;
+}
+
+// Ký HMAC-SHA512 cho VNPay. Dùng CHUNG cho cả initiate và verifyCallback để
+// hai chiều encode giống hệt nhau (URLSearchParams: space→+, encode ký tự đặc biệt
+// — tương đương PHP urlencode mà VNPay dùng phía server).
+function signVnpParams(params, hashSecret) {
+  const signData = new URLSearchParams(sortObject(params)).toString();
+  return crypto.createHmac('sha512', hashSecret)
+    .update(Buffer.from(signData, 'utf-8'))
+    .digest('hex');
 }
 
 // === COD (Cash on Delivery) ===
@@ -199,11 +208,8 @@ const vnpayGateway = {
     // Sắp xếp tham số theo alphabet (bắt buộc của VNPay)
     vnp_Params = sortObject(vnp_Params);
 
-    // Tính chữ ký: dùng URLSearchParams (encodes spaces=+, :/= %3A%2F)
-    // → match với cách VNPay verify phía server (PHP urlencode style)
-    const signData = new URLSearchParams(vnp_Params).toString();
-    const hmac = crypto.createHmac('sha512', hashSecret);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+    // Tính chữ ký bằng helper dùng chung với verifyCallback
+    const signed = signVnpParams(vnp_Params, hashSecret);
 
     // Build URL với cùng encoding
     const urlParams = new URLSearchParams({ ...vnp_Params, vnp_SecureHash: signed });
@@ -225,16 +231,13 @@ const vnpayGateway = {
     const secureHash = callbackParams['vnp_SecureHash'];
 
     // Xoá vnp_SecureHash và vnp_SecureHashType trước khi tính lại
-    let params = { ...callbackParams };
+    const params = { ...callbackParams };
     delete params['vnp_SecureHash'];
     delete params['vnp_SecureHashType'];
 
-    params = sortObject(params);
-
-    // Tính lại chữ ký — dùng qs.stringify encode:false giống bên initiate
-    const signData = qs.stringify(params, { encode: false });
-    const hmac = crypto.createHmac('sha512', hashSecret);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+    // Tính lại chữ ký bằng cùng helper với initiate (Express đã decode query
+    // string nên params ở đây là giá trị thô — re-encode giống chiều đi)
+    const signed = signVnpParams(params, hashSecret);
 
     if (signed !== secureHash) {
       throw new Error('Invalid VNPay callback signature');

@@ -7,17 +7,7 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const paymentService = require('../services/paymentService');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
-
-function calcEarnedPoints(amount) {
-  return Math.floor((amount || 0) / 10000);
-}
-
-function nextTier(points) {
-  if (points >= 2000) return 'VIP';
-  if (points >= 1000) return 'Gold';
-  if (points >= 500) return 'Silver';
-  return 'None';
-}
+const { calcEarnedPoints, nextTier } = require('../services/loyalty');
 
 // @desc    Initiate payment (Momo/VNPay)
 // @route   POST /api/payment/init
