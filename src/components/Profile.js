@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,6 +10,21 @@ const initialForm = {
   address: '',
   dateOfBirth: '',
   gender: ''
+};
+
+const ORDER_STATUS_VN = {
+  pending: 'Chờ xác nhận',
+  confirmed: 'Đã xác nhận',
+  shipped: 'Đang giao',
+  completed: 'Hoàn tất',
+  canceled: 'Đã huỷ'
+};
+
+const PAYMENT_STATUS_VN = {
+  pending: 'Chưa thanh toán',
+  paid: 'Đã thanh toán',
+  failed: 'Thanh toán lỗi',
+  cancelled: 'Đã huỷ thanh toán'
 };
 
 export default function Profile() {
@@ -22,6 +38,16 @@ export default function Profile() {
   const [points, setPoints] = useState(0);
   const [tier, setTier] = useState('None');
   const [form, setForm] = useState(initialForm);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  useEffect(() => {
+    authFetch(`${API_BASE_URL}/api/orders/mine`)
+      .then(res => res.ok ? res.json() : { data: [] })
+      .then(payload => setOrders(Array.isArray(payload?.data) ? payload.data : []))
+      .catch(() => setOrders([]))
+      .finally(() => setOrdersLoading(false));
+  }, [authFetch]);
 
   useEffect(() => {
     authFetch(`${API_BASE_URL}/api/me`)
@@ -203,6 +229,47 @@ export default function Profile() {
                 </button>
               </div>
             </form>
+          )}
+        </div>
+
+        {/* Order history */}
+        <div className="glass p-6 md:p-8 mt-6">
+          <div className="eyebrow mb-2">Lịch sử mua hàng</div>
+          <h2 className="font-serif font-light text-2xl mb-6">Đơn hàng của tôi</h2>
+
+          {ordersLoading ? (
+            <div className="text-muted font-light">Đang tải đơn hàng...</div>
+          ) : orders.length === 0 ? (
+            <div className="text-muted font-light">
+              Bạn chưa có đơn hàng nào. <Link to="/products" className="text-ink underline underline-offset-4">Khám phá bộ sưu tập →</Link>
+            </div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: '#DFDBD0' }}>
+              {orders.map((o) => (
+                <div key={o._id} className="py-4 flex flex-col sm:flex-row sm:items-center gap-3 border-hairline">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-[11px] uppercase tracking-wider text-label">
+                      #{String(o._id).slice(-8).toUpperCase()} · {new Date(o.createdAt).toLocaleDateString('vi-VN')}
+                    </div>
+                    <div className="text-sm text-ink font-light mt-1 truncate">
+                      {(o.cart || []).map(i => `${i.name}${i.sizeLabel ? ` (${i.sizeLabel})` : ''} ×${i.quantity}`).join(', ')}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <span className="font-mono text-[10.5px] uppercase tracking-wider px-2 py-1 border border-hairline text-muted">
+                      {ORDER_STATUS_VN[o.status] || o.status}
+                    </span>
+                    <span className="font-mono text-[10.5px] uppercase tracking-wider" style={{ color: o.paymentStatus === 'paid' ? 'var(--accent)' : '#8A8779' }}>
+                      {PAYMENT_STATUS_VN[o.paymentStatus] || o.paymentStatus}
+                    </span>
+                    <span className="font-mono text-sm text-ink">{Number(o.total).toLocaleString('vi-VN')}₫</span>
+                    <Link to={`/track?order=${o._id}`} className="font-mono text-[10.5px] uppercase tracking-wider text-ink underline underline-offset-4 hover:opacity-70">
+                      Theo dõi
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

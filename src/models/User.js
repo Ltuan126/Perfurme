@@ -70,7 +70,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for fast lookups
-userSchema.index({ username: 1 });
+// username đã có unique index từ `unique: true` — không khai báo lại để tránh duplicate index warning
 
 module.exports = mongoose.model('User', userSchema);
