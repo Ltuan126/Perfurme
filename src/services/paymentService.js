@@ -5,9 +5,23 @@
 
 const crypto = require('crypto');
 
-if (process.env.NODE_ENV === 'production') {
-  if (!process.env.MOMO_SECRET_KEY) throw new Error('MOMO_SECRET_KEY chưa được cấu hình an toàn cho production');
-  if (!process.env.VNPAY_HASH_SECRET) throw new Error('VNPAY_HASH_SECRET chưa được cấu hình an toàn cho production');
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+// Không throw lúc khởi động (sẽ làm chết cả server trên Render) — chỉ cảnh báo.
+// Gateway thiếu secret sẽ báo lỗi tại thời điểm gọi thanh toán (requireSecret).
+if (IS_PRODUCTION) {
+  if (!process.env.MOMO_SECRET_KEY) console.warn('⚠️ MOMO_SECRET_KEY chưa cấu hình — gateway Momo sẽ bị vô hiệu');
+  if (!process.env.VNPAY_HASH_SECRET) console.warn('⚠️ VNPAY_HASH_SECRET chưa cấu hình — gateway VNPay sẽ bị vô hiệu');
+}
+
+// Production không được dùng secret test fallback: thiếu env → lỗi ngay tại lúc gọi
+function requireSecret(envName, devFallback) {
+  const value = process.env[envName];
+  if (value) return value;
+  if (IS_PRODUCTION) {
+    throw new Error(`${envName} chưa được cấu hình — phương thức thanh toán này tạm thời không khả dụng`);
+  }
+  return devFallback;
 }
 
 // Helper: sắp xếp object theo key alphabet (VNPay yêu cầu)
@@ -59,7 +73,7 @@ const momoGateway = {
 
     const partnerCode = process.env.MOMO_PARTNER_CODE || 'MOMOXXXXXX';
     const accessKey = process.env.MOMO_ACCESS_KEY || 'access_key_test';
-    const secretKey = process.env.MOMO_SECRET_KEY || 'secret_key_test';
+    const secretKey = requireSecret('MOMO_SECRET_KEY', 'secret_key_test');
     const endpoint = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create';
 
     const requestId = `${Date.now()}`;
@@ -122,7 +136,7 @@ const momoGateway = {
   },
 
   verifyCallback: (callbackPayload) => {
-    const secretKey = process.env.MOMO_SECRET_KEY || 'secret_key_test';
+    const secretKey = requireSecret('MOMO_SECRET_KEY', 'secret_key_test');
     
     // Rebuild signature from callback
     const {
@@ -177,7 +191,7 @@ const vnpayGateway = {
     } = config;
 
     const tmnCode   = process.env.VNPAY_TMN_CODE    || 'TMNCODE0000';
-    const hashSecret = process.env.VNPAY_HASH_SECRET || 'hash_secret_test';
+    const hashSecret = requireSecret('VNPAY_HASH_SECRET', 'hash_secret_test');
     const vnpayEndpoint = process.env.VNPAY_ENDPOINT || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
     const ipnUrl = process.env.VNPAY_IPN_URL || '';
 
@@ -226,7 +240,7 @@ const vnpayGateway = {
   },
 
   verifyCallback: (callbackParams) => {
-    const hashSecret = process.env.VNPAY_HASH_SECRET || 'hash_secret_test';
+    const hashSecret = requireSecret('VNPAY_HASH_SECRET', 'hash_secret_test');
 
     const secureHash = callbackParams['vnp_SecureHash'];
 
