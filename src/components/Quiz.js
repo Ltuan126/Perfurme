@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
-import { allFamilies, allSeasons, allOccasions, allMoods, familyLabelsVN, intensityLabelsVN, getProductMeta } from '../data/productMeta';
+import { allFamilies, allSeasons, allOccasions, allMoods, familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
 import ProductCard from './ProductCard';
 import { saveQuizAnswers, loadQuizAnswers } from '../utils/quiz';
 import API_BASE_URL from '../config/api';
@@ -15,30 +15,27 @@ const moodLabelsVN = {
 };
 
 function scoreProduct(p, answers) {
-  const meta = getProductMeta(p);
-  if (!meta) return 0;
+  if (!p.families?.length) return 0;
   let score = 0;
-  const famOverlap = (answers.families || []).filter(f => meta.families.includes(f)).length;
+  const famOverlap = (answers.families || []).filter(f => p.families.includes(f)).length;
   score += famOverlap * 5;
-  if (answers.season && (answers.season === 'any' || meta.seasons.includes(answers.season))) score += 2;
-  if (answers.occasion && meta.occasions.includes(answers.occasion)) score += 2;
-  const moodOverlap = (answers.moods || []).filter(m => meta.moods.includes(m)).length;
+  if (answers.season && (answers.season === 'any' || (p.seasons || []).includes(answers.season))) score += 2;
+  if (answers.occasion && (p.occasions || []).includes(answers.occasion)) score += 2;
+  const moodOverlap = (answers.moods || []).filter(m => (p.moods || []).includes(m)).length;
   score += moodOverlap * 3;
-  if (answers.intensity && answers.intensity === meta.intensity) score += 1;
+  if (answers.intensity && answers.intensity === p.intensity) score += 1;
   return score;
 }
 
 function similarProducts(base, candidates, topN = 3) {
-  const baseMeta = getProductMeta(base);
-  if (!baseMeta) return [];
+  if (!base.families?.length) return [];
   const baseId = base._id || base.id;
   return candidates
     .filter(p => (p._id || p.id) !== baseId)
     .map(p => {
-      const m = getProductMeta(p);
-      if (!m) return { p, s: 0 };
-      const fam = m.families.filter(f => baseMeta.families.includes(f)).length;
-      const mood = m.moods.filter(x => baseMeta.moods.includes(x)).length;
+      if (!p.families?.length) return { p, s: 0 };
+      const fam = p.families.filter(f => base.families.includes(f)).length;
+      const mood = (p.moods || []).filter(x => (base.moods || []).includes(x)).length;
       const s = fam * 2 + mood;
       return { p, s };
     })
@@ -95,9 +92,8 @@ export default function Quiz() {
 
   if (done) {
     const [primary, ...rest] = results;
-    const primaryMeta = primary ? getProductMeta(primary) : null;
-    const noteTag = primaryMeta
-      ? [familyLabelsVN[primaryMeta.families?.[0]], intensityLabelsVN[primaryMeta.intensity]].filter(Boolean).join(' · ')
+    const noteTag = primary?.families?.length
+      ? [familyLabelsVN[primary.families[0]], intensityLabelsVN[primary.intensity]].filter(Boolean).join(' · ')
       : null;
 
     return (

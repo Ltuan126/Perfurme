@@ -5,7 +5,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { products as localProducts } from '../data/products';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../context/AuthContext';
-import { productMeta, familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
+import { familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
 
 const NOTE_WORDS = {
   citrus: ['Chanh vàng', 'Cam Ý', 'Bưởi'],
@@ -80,17 +80,11 @@ export default function ProductDetail({ addToCart }) {
 
   const currentSizeLabel = useMemo(() => (selectedSize || sizes?.[0]?.label), [selectedSize, sizes]);
 
-  const meta = useMemo(() => {
-    if (!product) return null;
-    const pId = product.id || product._id;
-    return productMeta[pId] || Object.values(productMeta).find(m => m.name.toLowerCase() === (product.name || '').toLowerCase());
-  }, [product]);
-
-  const noteTag = meta
-    ? [familyLabelsVN[meta.families?.[0]], intensityLabelsVN[meta.intensity]].filter(Boolean).join(' · ')
+  const noteTag = product?.families?.length
+    ? [familyLabelsVN[product.families[0]], intensityLabelsVN[product.intensity]].filter(Boolean).join(' · ')
     : null;
 
-  const pyramid = useMemo(() => buildPyramid(meta), [meta]);
+  const pyramid = useMemo(() => buildPyramid(product), [product]);
 
   useEffect(() => {
     // Only attempt reviews when viewing a backend product (has string _id)

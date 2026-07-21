@@ -1,56 +1,8 @@
-// Product metadata for quiz matching
-// Families: citrus, floral, woody, green, spicy, musky, tea, white-floral, amber
-
-export const productMeta = {
-  1: {
-    name: 'Another 13',
-    families: ['musky', 'woody', 'amber'],
-    seasons: ['spring', 'summer', 'fall', 'winter'],
-    occasions: ['everyday', 'office'],
-    moods: ['calm-clean', 'modern-minimal'],
-    intensity: 'moderate',
-  },
-  2: {
-    name: 'Bergamote 22',
-    families: ['citrus', 'woody'],
-    seasons: ['spring', 'summer'],
-    occasions: ['everyday', 'office', 'casual'],
-    moods: ['fresh-energizing'],
-    intensity: 'light',
-  },
-  3: {
-    name: 'Baie 19',
-    families: ['green', 'woody'],
-    seasons: ['spring', 'fall'],
-    occasions: ['everyday', 'casual'],
-    moods: ['atmospheric', 'fresh-energizing'],
-    intensity: 'moderate',
-  },
-  4: {
-    name: 'Rose 31',
-    families: ['floral', 'spicy', 'woody'],
-    seasons: ['fall', 'winter'],
-    occasions: ['date-night', 'special'],
-    moods: ['bold-confident', 'romantic'],
-    intensity: 'strong',
-  },
-  5: {
-    name: 'THÉ NOIR 29',
-    families: ['tea', 'woody', 'green'],
-    seasons: ['fall', 'spring'],
-    occasions: ['everyday', 'office', 'special'],
-    moods: ['sophisticated'],
-    intensity: 'moderate',
-  },
-  6: {
-    name: 'NEROLI 36',
-    families: ['white-floral', 'citrus'],
-    seasons: ['spring', 'summer'],
-    occasions: ['everyday', 'casual'],
-    moods: ['bright-happy'],
-    intensity: 'light',
-  },
-};
+// Quiz vocabulary + Vietnamese display labels.
+// Actual per-product metadata (families/seasons/occasions/moods/intensity)
+// now lives directly on each product document (backend Product schema, or
+// inline on the local fallback items in src/data/products.js) — read it via
+// `product.families`, `product.intensity`, etc. No more id-keyed lookup table.
 
 export const allFamilies = [
   'citrus', 'floral', 'woody', 'green', 'spicy', 'musky', 'tea', 'white-floral', 'amber'
@@ -59,6 +11,7 @@ export const allFamilies = [
 export const allSeasons = ['any', 'spring', 'summer', 'fall', 'winter'];
 export const allOccasions = ['everyday', 'office', 'casual', 'date-night', 'party', 'special'];
 export const allMoods = ['fresh-energizing', 'calm-clean', 'bold-confident', 'romantic', 'sophisticated', 'bright-happy', 'modern-minimal', 'atmospheric'];
+export const allIntensities = ['light', 'moderate', 'strong'];
 
 // Display labels (Vietnamese) — SILLAGE product tags & filters
 export const familyLabelsVN = {
@@ -78,18 +31,3 @@ export const intensityLabelsVN = {
   moderate: 'Ấm',
   strong: 'Đậm',
 };
-
-// Match a product (from static data or MongoDB) to its editorial metadata.
-// Static products have numeric `id` matching productMeta keys directly;
-// products from the API only have `_id` (ObjectId), so fall back to name match.
-export function getProductMeta(product) {
-  if (!product) return undefined;
-  const pId = product.id || product._id;
-  let meta = productMeta[pId];
-  if (!meta) {
-    meta = Object.values(productMeta).find(
-      m => m.name.toLowerCase() === (product.name || '').toLowerCase()
-    );
-  }
-  return meta;
-}

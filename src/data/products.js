@@ -11,6 +11,11 @@ export const products = [
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PA13100__PRODUCT_01--IMG_1200--ANOTHER13-247547490.jpg",
     description: "A timeless scent with floral top notes.",
+    families: ['musky', 'woody', 'amber'],
+    seasons: ['spring', 'summer', 'fall', 'winter'],
+    occasions: ['everyday', 'office'],
+    moods: ['calm-clean', 'modern-minimal'],
+    intensity: 'moderate',
   },
   {
     id: 2,
@@ -24,6 +29,11 @@ export const products = [
     image:
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PB22100__PRODUCT_01--IMG_1200--BERGAMOTE22--1562685279.jpg",
     description: "Fresh citrus aroma for everyday wear.",
+    families: ['citrus', 'woody'],
+    seasons: ['spring', 'summer'],
+    occasions: ['everyday', 'office', 'casual'],
+    moods: ['fresh-energizing'],
+    intensity: 'light',
   },
   {
     id: 3,
@@ -38,6 +48,11 @@ export const products = [
       "https://lelabo.ips.photos/lelabo-java/images/skus/J2K401R000__PRODUCT_01--IMG_1200--BAIE19-1695466996.jpg",
     description:
       "This is what BAIE 19 is about: the dry juniper berry, the patchouli, the green leaves... all soaked by a beautiful, luminous, magnetic rain after a long drought. And the joy that comes with it...",
+    families: ['green', 'woody'],
+    seasons: ['spring', 'fall'],
+    occasions: ['everyday', 'casual'],
+    moods: ['atmospheric', 'fresh-energizing'],
+    intensity: 'moderate',
   },
   {
     id: 4,
@@ -52,6 +67,11 @@ export const products = [
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PR31100__PRODUCT_01--IMG_1200--ROSE31--2101804434.jpg",
     description:
       "The perfume's aim is clear: to transform the famous Grasse rose, a symbol of voluptuousness and unqualified femininity, into an assertively virile fragrance that can be worn by anyone…",
+    families: ['floral', 'spicy', 'woody'],
+    seasons: ['fall', 'winter'],
+    occasions: ['date-night', 'special'],
+    moods: ['bold-confident', 'romantic'],
+    intensity: 'strong',
   },
   {
     id: 5,
@@ -66,6 +86,11 @@ export const products = [
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PT29100__PRODUCT_01--IMG_1200--THNOIR29--1804794449.jpg",
     description:
       "THÉ NOIR 29 combines depth and freshness, softness and strength through permanent oscillation between the light of bergamot, fig, and bay leaves and the depth of cedarwood, vetiver, and musk.",
+    families: ['tea', 'woody', 'green'],
+    seasons: ['fall', 'spring'],
+    occasions: ['everyday', 'office', 'special'],
+    moods: ['sophisticated'],
+    intensity: 'moderate',
   },
   {
     id: 6,
@@ -80,5 +105,10 @@ export const products = [
       "https://lelabo.ips.photos/lelabo-java/images/skus/100PN36100__PRODUCT_01--IMG_1200--NEROLI36-678633412.jpg",
     description:
       "Neroli is another name for the essence of orange blossom. The unique quality of our Neroli is its sunny floral character with an extraordinarily warm, sensual base.",
+    families: ['white-floral', 'citrus'],
+    seasons: ['spring', 'summer'],
+    occasions: ['everyday', 'casual'],
+    moods: ['bright-happy'],
+    intensity: 'light',
   },
 ];

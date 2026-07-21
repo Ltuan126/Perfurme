@@ -2,13 +2,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { productMeta, familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
+import { familyLabelsVN, intensityLabelsVN } from '../data/productMeta';
 
 export default function ProductCard({ product }) {
   const isMini = /mini/i.test(product?.name || '');
-  const meta = productMeta[product?.id];
-  const noteTag = meta
-    ? [familyLabelsVN[meta.families?.[0]], intensityLabelsVN[meta.intensity]].filter(Boolean).join(' · ')
+  const noteTag = product?.families?.length
+    ? [familyLabelsVN[product.families[0]], intensityLabelsVN[product.intensity]].filter(Boolean).join(' · ')
     : null;
 
   return (

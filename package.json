@@ -32,6 +32,7 @@
     "test:server": "node --test \"tests/server/*.test.js\"",
     "seed:minis": "node scripts/seedMinis.js",
     "seed:sizes": "node scripts/addSizes.js",
+    "seed:quizmeta": "node scripts/backfillQuizMeta.js",
     "tailwind-build": "npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch"
   },
   "browserslist": {

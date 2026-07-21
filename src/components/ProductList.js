@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { products as localProducts } from '../data/products';
 import { loadQuizAnswers } from '../utils/quiz';
-import { allFamilies, familyLabelsVN, getProductMeta } from '../data/productMeta';
+import { allFamilies, familyLabelsVN } from '../data/productMeta';
 import API_BASE_URL from '../config/api';
 
 export default function ProductList() {
@@ -65,12 +65,11 @@ export default function ProductList() {
       if (answers) {
         base = base
           .map(p => {
-            const m = getProductMeta(p);
             let s = 0;
-            if (answers.families?.length) s += (answers.families.filter(f => m?.families?.includes(f)).length || 0) * 3;
-            if (answers.season) s += (answers.season === 'any' || m?.seasons?.includes(answers.season)) ? 1 : 0;
-            if (answers.occasion) s += (m?.occasions?.includes(answers.occasion) ? 1 : 0);
-            if (answers.moods?.length) s += (answers.moods.filter(x => m?.moods?.includes(x)).length || 0) * 2;
+            if (answers.families?.length) s += (answers.families.filter(f => p.families?.includes(f)).length || 0) * 3;
+            if (answers.season) s += (answers.season === 'any' || p.seasons?.includes(answers.season)) ? 1 : 0;
+            if (answers.occasion) s += (p.occasions?.includes(answers.occasion) ? 1 : 0);
+            if (answers.moods?.length) s += (answers.moods.filter(x => p.moods?.includes(x)).length || 0) * 2;
             return { p, s };
           })
           .sort((a, b) => b.s - a.s)
@@ -90,10 +89,7 @@ export default function ProductList() {
 
       // family filter
       if (familyFilter !== 'all') {
-        base = base.filter(p => {
-          const meta = getProductMeta(p);
-          return meta && meta.families?.includes(familyFilter);
-        });
+        base = base.filter(p => p.families?.includes(familyFilter));
       }
 
       // sort order

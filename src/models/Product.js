@@ -1,4 +1,5 @@
 const mongoose = require('../db');
+const { FAMILIES, SEASONS, OCCASIONS, MOODS, INTENSITIES } = require('../constants/perfumeTaxonomy');
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -46,6 +47,33 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: [0, 'Tồn kho không thể âm']
+  },
+  // Quiz matching metadata — set by admin so newly added products can be
+  // recommended by the fragrance quiz (previously hard-coded on the frontend).
+  families: {
+    type: [String],
+    enum: { values: FAMILIES, message: 'Nhóm hương "{VALUE}" không hợp lệ' },
+    default: []
+  },
+  seasons: {
+    type: [String],
+    enum: { values: SEASONS, message: 'Mùa "{VALUE}" không hợp lệ' },
+    default: []
+  },
+  occasions: {
+    type: [String],
+    enum: { values: OCCASIONS, message: 'Dịp sử dụng "{VALUE}" không hợp lệ' },
+    default: []
+  },
+  moods: {
+    type: [String],
+    enum: { values: MOODS, message: 'Mood "{VALUE}" không hợp lệ' },
+    default: []
+  },
+  intensity: {
+    type: String,
+    enum: { values: [...INTENSITIES, ''], message: 'Độ lưu hương "{VALUE}" không hợp lệ' },
+    default: ''
   }
 }, {
   timestamps: true

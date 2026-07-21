@@ -4,9 +4,11 @@
  */
 
 const { AppError } = require('./errorHandler');
+const { FAMILIES, SEASONS, OCCASIONS, MOODS, INTENSITIES } = require('../constants/perfumeTaxonomy');
 
 // Generic validator factory – accepts an array of field rules
-// Each rule: { field, label, required?, type?, min?, max?, maxlength?, match?, matchMsg? }
+// Each rule: { field, label, required?, type?, min?, max?, maxlength?, match?, matchMsg?,
+//              arrayOf?: string[] (every element of the array value must be in this set) }
 function validateBody(rules) {
     return (req, res, next) => {
         const errors = [];
@@ -49,6 +51,18 @@ function validateBody(rules) {
             if (rule.match && typeof value === 'string' && !rule.match.test(value)) {
                 errors.push(rule.matchMsg || `${rule.label || rule.field} không hợp lệ`);
             }
+
+            // Array of allowed values (e.g. quiz taxonomy fields)
+            if (rule.arrayOf) {
+                if (!Array.isArray(value)) {
+                    errors.push(`${rule.label || rule.field} phải là mảng`);
+                } else {
+                    const invalid = value.filter(v => !rule.arrayOf.includes(v));
+                    if (invalid.length > 0) {
+                        errors.push(`${rule.label || rule.field} chứa giá trị không hợp lệ: ${invalid.join(', ')}`);
+                    }
+                }
+            }
         }
 
         if (errors.length > 0) {
@@ -79,7 +93,12 @@ const validateProduct = validateBody([
     { field: 'name', label: 'Tên sản phẩm', required: true, type: 'string', maxlength: 200 },
     { field: 'price', label: 'Giá', required: true, type: 'number', min: 0 },
     { field: 'description', label: 'Mô tả', type: 'string', maxlength: 2000 },
-    { field: 'stock', label: 'Tồn kho', type: 'number', min: 0 }
+    { field: 'stock', label: 'Tồn kho', type: 'number', min: 0 },
+    { field: 'families', label: 'Nhóm hương', arrayOf: FAMILIES },
+    { field: 'seasons', label: 'Mùa', arrayOf: SEASONS },
+    { field: 'occasions', label: 'Dịp sử dụng', arrayOf: OCCASIONS },
+    { field: 'moods', label: 'Mood', arrayOf: MOODS },
+    { field: 'intensity', label: 'Độ lưu hương', type: 'string', match: new RegExp(`^(${INTENSITIES.join('|')})?$`), matchMsg: 'Độ lưu hương không hợp lệ' }
 ]);
 
 const validateContact = validateBody([
