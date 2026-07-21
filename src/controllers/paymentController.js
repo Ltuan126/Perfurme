@@ -8,6 +8,7 @@ const User = require('../models/User');
 const paymentService = require('../services/paymentService');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { calcEarnedPoints, nextTier } = require('../services/loyalty');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
 
 // @desc    Initiate payment (VNPay)
 // @route   POST /api/payment/init
@@ -103,6 +104,9 @@ const paymentCallback = asyncHandler(async (req, res) => {
         user.points = newPoints;
         user.tier = nextTier(newPoints);
         await user.save();
+
+        // Fire-and-forget: never let a slow/broken email provider delay the callback response
+        if (user.email) sendOrderConfirmationEmail(order, user.email).catch(() => {});
       }
     }
 

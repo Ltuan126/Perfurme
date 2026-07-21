@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { computeCartPricing } = require('../services/orderPricing');
 const { calcEarnedPoints, nextTier } = require('../services/loyalty');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
 
 // --- Helpers ---
 
@@ -90,6 +91,9 @@ const createOrder = asyncHandler(async (req, res) => {
             user.points = newPoints;
             user.tier = nextTier(newPoints);
             await user.save();
+
+            // Fire-and-forget: never let a slow/broken email provider delay checkout
+            if (user.email) sendOrderConfirmationEmail(order, user.email).catch(() => {});
         }
     }
 
