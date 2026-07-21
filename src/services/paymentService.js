@@ -1,6 +1,6 @@
 /**
  * Payment Service Layer
- * Abstract payment gateway implementations for Momo, VNPay, COD
+ * Abstract payment gateway implementations for VNPay, COD
  */
 
 const crypto = require('crypto');
@@ -9,9 +9,8 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Không throw lúc khởi động (sẽ làm chết cả server trên Render) — chỉ cảnh báo.
 // Gateway thiếu secret sẽ báo lỗi tại thời điểm gọi thanh toán (requireSecret).
-if (IS_PRODUCTION) {
-  if (!process.env.MOMO_SECRET_KEY) console.warn('⚠️ MOMO_SECRET_KEY chưa cấu hình — gateway Momo sẽ bị vô hiệu');
-  if (!process.env.VNPAY_HASH_SECRET) console.warn('⚠️ VNPAY_HASH_SECRET chưa cấu hình — gateway VNPay sẽ bị vô hiệu');
+if (IS_PRODUCTION && !process.env.VNPAY_HASH_SECRET) {
+  console.warn('⚠️ VNPAY_HASH_SECRET chưa cấu hình — gateway VNPay sẽ bị vô hiệu');
 }
 
 // Production không được dùng secret test fallback: thiếu env → lỗi ngay tại lúc gọi
@@ -56,125 +55,6 @@ const codGateway = {
   verifyCallback: () => {
     // COD không có webhook
     throw new Error('COD không hỗ trợ callback verification');
-  }
-};
-
-// === Momo Gateway (MCCv2 API) ===
-const momoGateway = {
-  name: 'momo',
-  initiate: async (config) => {
-    const {
-      amount,
-      orderId,
-      orderInfo = 'Thanh toán đơn hàng',
-      redirectUrl = process.env.MOMO_RETURN_URL || 'http://localhost:3000/payment/callback',
-      ipnUrl = process.env.MOMO_IPN_URL || 'http://localhost:5000/api/payment/callback'
-    } = config;
-
-    const partnerCode = process.env.MOMO_PARTNER_CODE || 'MOMOXXXXXX';
-    const accessKey = process.env.MOMO_ACCESS_KEY || 'access_key_test';
-    const secretKey = requireSecret('MOMO_SECRET_KEY', 'secret_key_test');
-    const endpoint = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create';
-
-    const requestId = `${Date.now()}`;
-    const requestType = 'captureWallet';
-    
-    // Build signature (theo Momo API spec)
-    const signatureData = `accessKey=${accessKey}&amount=${amount}&extraData=&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
-    const signature = crypto
-      .createHmac('sha256', secretKey)
-      .update(signatureData)
-      .digest('hex');
-
-    const payload = {
-      partnerCode,
-      partnerName: 'Perfume Shop',
-      partnerUserId: 'perfume_shop',
-      accessKey,
-      requestId,
-      amount,
-      orderId: String(orderId),
-      orderInfo,
-      redirectUrl,
-      ipnUrl,
-      extraData: '',
-      requestType,
-      signature,
-      lang: 'vi'
-    };
-
-    // Gọi Momo Sandbox API (v2)
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Momo API error ${response.status}: ${errText}`);
-    }
-
-    const momoRes = await response.json();
-
-    // resultCode = 0 là thành công, Momo trả về payUrl
-    if (momoRes.resultCode !== 0) {
-      throw new Error(`Momo từ chối: [${momoRes.resultCode}] ${momoRes.message}`);
-    }
-
-    return {
-      success: true,
-      method: 'momo',
-      orderId,
-      amount,
-      requestId,
-      paymentLink: momoRes.payUrl,   // URL redirect sang Momo
-      deeplink: momoRes.deeplink,    // mở app Momo (optional)
-      qrCodeUrl: momoRes.qrCodeUrl,  // QR code image URL
-      signature
-    };
-  },
-
-  verifyCallback: (callbackPayload) => {
-    const secretKey = requireSecret('MOMO_SECRET_KEY', 'secret_key_test');
-    
-    // Rebuild signature from callback
-    const {
-      partnerCode,
-      accessKey,
-      requestId,
-      amount,
-      orderId,
-      orderInfo = '',
-      extraData = '',
-      transId,
-      resultCode,
-      message,
-      responseTime,
-      payType,
-      signature
-    } = callbackPayload;
-
-    const signatureData = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&message=${message}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&payType=${payType}&requestId=${requestId}&responseTime=${responseTime}&resultCode=${resultCode}&transId=${transId}`;
-    const expectedSignature = crypto
-      .createHmac('sha256', secretKey)
-      .update(signatureData)
-      .digest('hex');
-
-    if (signature !== expectedSignature) {
-      throw new Error('Invalid Momo callback signature');
-    }
-
-    // resultCode = 0 means success
-    return {
-      success: resultCode === 0 || resultCode === '0',
-      method: 'momo',
-      orderId,
-      transId,
-      amount,
-      message,
-      resultCode
-    };
   }
 };
 
@@ -274,7 +154,6 @@ const vnpayGateway = {
 // === Gateway Router ===
 const gateways = {
   cod: codGateway,
-  momo: momoGateway,
   vnpay: vnpayGateway
 };
 

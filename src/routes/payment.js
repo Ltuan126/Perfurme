@@ -6,11 +6,11 @@ const {
   checkPaymentStatus
 } = require('../controllers/paymentController');
 
-// POST /api/payment/init - Initiate payment (Momo/VNPay)
-// Body: { orderId, method: 'momo' | 'vnpay' }
+// POST /api/payment/init - Initiate payment (VNPay)
+// Body: { orderId, method: 'vnpay' }
 router.post('/init', initiatePayment);
 
-// POST /api/payment/callback - IPN webhook (Momo / VNPay server-to-server)
+// POST /api/payment/callback - IPN webhook (VNPay server-to-server)
 router.post('/callback', paymentCallback);
 
 // GET /api/payment/callback - Return URL sau khi user thanh toán xong (VNPay redirect)

@@ -9,7 +9,7 @@ const paymentService = require('../services/paymentService');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { calcEarnedPoints, nextTier } = require('../services/loyalty');
 
-// @desc    Initiate payment (Momo/VNPay)
+// @desc    Initiate payment (VNPay)
 // @route   POST /api/payment/init
 // @access  Public
 const initiatePayment = asyncHandler(async (req, res) => {
@@ -35,12 +35,6 @@ const initiatePayment = asyncHandler(async (req, res) => {
       orderInfo: `Thanh toan don hang ${order._id.toString().slice(-6).toUpperCase()}`
     });
 
-    // Store request ID for webhook matching (for Momo)
-    if (method === 'momo' && paymentSession.requestId) {
-      order.paymentRef = paymentSession.requestId;
-      await order.save();
-    }
-
     res.json({
       success: true,
       data: paymentSession
@@ -50,11 +44,11 @@ const initiatePayment = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Payment webhook callback (Momo/VNPay)
+// @desc    Payment webhook callback (VNPay)
 // @route   POST /api/payment/callback
 // @access  Public (but requires valid signature)
 const paymentCallback = asyncHandler(async (req, res) => {
-  // VNPay gửi data qua query string (GET redirect), Momo gửi qua body (POST IPN)
+  // VNPay gửi data qua query string (GET redirect / IPN)
   const method = req.query.method;
   const payload = { ...req.query, ...req.body };
   delete payload.method; // bỏ field 'method' khỏi payload

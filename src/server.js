@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // --- Global Middleware ---
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
