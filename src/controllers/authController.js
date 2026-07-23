@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../middleware/auth');
@@ -7,6 +8,12 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || JWT_SECRET;
 const ACCESS_TOKEN_TTL = JWT_EXPIRES_IN;
 const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_EXPIRES_IN || '30d';
+const MAX_ACTIVE_SESSIONS = 5;
+
+// Refresh token chỉ lưu dạng hash SHA-256 trong DB — DB bị lộ cũng không dùng lại được token
+function hashToken(token) {
+    return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 function parseCookies(req) {
     const header = req.headers.cookie || '';
@@ -40,8 +47,10 @@ function signAccessToken(user) {
 }
 
 function signRefreshToken(user) {
+    // jti ngẫu nhiên để 2 token ký trong cùng 1 giây vẫn khác nhau —
+    // nếu không, rotation sẽ vô nghĩa vì hash trùng nhau
     return jwt.sign(
-        { sub: user._id, ver: user.tokenVersion || 0 },
+        { sub: user._id, jti: crypto.randomUUID() },
         REFRESH_TOKEN_SECRET,
         { expiresIn: REFRESH_TOKEN_TTL }
     );
@@ -67,9 +76,19 @@ function buildUserResponse(user) {
     };
 }
 
-function issueSession(res, user) {
+// Ký cặp token mới + lưu hash refresh token vào DB (dọn token hết hạn,
+// giới hạn MAX_ACTIVE_SESSIONS phiên — vượt thì loại phiên cũ nhất)
+async function issueSession(res, user) {
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);
+
+    const { exp } = jwt.decode(refreshToken);
+    const now = Date.now();
+    const active = (user.refreshTokens || []).filter(t => t.expiresAt && t.expiresAt.getTime() > now);
+    active.push({ tokenHash: hashToken(refreshToken), createdAt: new Date(now), expiresAt: new Date(exp * 1000) });
+    user.refreshTokens = active.slice(-MAX_ACTIVE_SESSIONS);
+    await user.save();
+
     attachRefreshCookie(res, refreshToken);
     return { accessToken, user: buildUserResponse(user) };
 }
@@ -89,7 +108,7 @@ const register = asyncHandler(async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({ username, passwordHash });
 
-    const session = issueSession(res, user);
+    const session = await issueSession(res, user);
 
     res.status(201).json({
         success: true,
@@ -115,7 +134,7 @@ const login = asyncHandler(async (req, res) => {
         throw new AppError('Sai tài khoản hoặc mật khẩu', 401);
     }
 
-    const session = issueSession(res, user);
+    const session = await issueSession(res, user);
 
     res.json({
         success: true,
@@ -143,11 +162,21 @@ const refresh = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findById(payload.sub);
-    if (!user || (user.tokenVersion || 0) !== Number(payload.ver || 0)) {
+    if (!user) {
         throw new AppError('Refresh token không còn hiệu lực', 401);
     }
 
-    const session = issueSession(res, user);
+    // Token phải tồn tại trong danh sách phiên đang hoạt động (đã bị logout/thu hồi → từ chối)
+    const incomingHash = hashToken(refreshToken);
+    const known = (user.refreshTokens || []).some(t => t.tokenHash === incomingHash);
+    if (!known) {
+        throw new AppError('Refresh token không còn hiệu lực', 401);
+    }
+
+    // Rotation: thu hồi token cũ ngay khi dùng — mỗi refresh token chỉ dùng được 1 lần
+    user.refreshTokens = user.refreshTokens.filter(t => t.tokenHash !== incomingHash);
+
+    const session = await issueSession(res, user);
 
     res.json({
         success: true,
@@ -168,7 +197,9 @@ const logout = asyncHandler(async (req, res) => {
             const payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
             const user = await User.findById(payload.sub);
             if (user) {
-                user.tokenVersion = (user.tokenVersion || 0) + 1;
+                // Chỉ thu hồi phiên này (per-device) — các thiết bị khác vẫn đăng nhập
+                const incomingHash = hashToken(refreshToken);
+                user.refreshTokens = (user.refreshTokens || []).filter(t => t.tokenHash !== incomingHash);
                 await user.save();
             }
         } catch {

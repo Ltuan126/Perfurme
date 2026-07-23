@@ -65,6 +65,16 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: 0
+  },
+  // Phiên đăng nhập đang hoạt động: lưu SHA-256 hash của refresh token
+  // (không bao giờ lưu token thô) — cho phép thu hồi từng thiết bị riêng lẻ
+  refreshTokens: {
+    type: [{
+      tokenHash: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now },
+      expiresAt: { type: Date, required: true }
+    }],
+    default: []
   }
 }, {
   timestamps: true
