@@ -14,9 +14,46 @@ const STATUS_FLOW = ['pending', 'confirmed', 'shipped', 'completed'];
 
 const pill = (active) => `font-mono uppercase text-[10.5px] tracking-[0.14em] px-4 py-2 border transition-colors duration-300 ${active ? 'bg-ink text-cream border-ink' : 'bg-transparent text-ink border-hairline hover:border-ink'}`;
 
+function StatTile({ label, value, sub }) {
+  return (
+    <div className="border border-hairline p-5">
+      <div className="field-label mb-1">{label}</div>
+      <div className="font-serif text-3xl text-ink" style={{ lineHeight: 1.1 }}>{value}</div>
+      {sub && <div className="font-mono text-[10.5px] uppercase tracking-wider text-label mt-1">{sub}</div>}
+    </div>
+  );
+}
+
+// Bar list 1 series: độ dài bar mang thông tin, màu ink trung tính,
+// mỗi hàng có nhãn ngày + doanh thu trực tiếp (kiêm luôn "table view")
+function DailyRevenueBars({ daily }) {
+  if (!daily || daily.length === 0) {
+    return <div className="text-muted font-light text-sm py-4">Chưa có doanh thu trong 30 ngày qua.</div>;
+  }
+  const max = Math.max(...daily.map(d => d.revenue), 1);
+  return (
+    <div className="space-y-2">
+      {daily.map(d => (
+        <div key={d.date} className="flex items-center gap-3" title={`${d.orders} đơn · ${d.revenue.toLocaleString('vi-VN')}₫`}>
+          <span className="font-mono text-[10.5px] text-label w-14 shrink-0">
+            {new Date(d.date + 'T00:00:00').toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+          </span>
+          <div className="flex-1 h-4 bg-surface relative">
+            <div className="h-full bg-ink" style={{ width: `${Math.max((d.revenue / max) * 100, 2)}%` }} />
+          </div>
+          <span className="font-mono text-[10.5px] text-ink w-24 text-right shrink-0">{d.revenue.toLocaleString('vi-VN')}₫</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const STATUS_LABELS_VN = { pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', shipped: 'Đang giao', completed: 'Hoàn tất', canceled: 'Đã huỷ' };
+
 export default function AdminOrders() {
   const { authFetch } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
@@ -28,6 +65,13 @@ export default function AdminOrders() {
       .then(res => res.json())
       .then(data => { setOrders(Array.isArray(data?.data) ? data.data : []); setLoading(false); })
       .catch(() => { setError('Không thể tải đơn hàng!'); setLoading(false); });
+  }, [authFetch]);
+
+  useEffect(() => {
+    authFetch(`${API_BASE_URL}/api/orders/stats`)
+      .then(res => res.ok ? res.json() : null)
+      .then(payload => { if (payload?.success) setStats(payload.data); })
+      .catch(() => {});
   }, [authFetch]);
 
   const filtered = useMemo(() => {
@@ -71,6 +115,21 @@ export default function AdminOrders() {
     <div className="section">
       <div className="eyebrow mb-2">Quản trị</div>
       <h1 className="title text-left">Quản lý đơn hàng</h1>
+
+      {stats && (
+        <div className="mb-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatTile label="Doanh thu thực thu" value={`${stats.revenue.toLocaleString('vi-VN')}₫`} sub={`${stats.paidOrders} đơn đã thu tiền`} />
+            <StatTile label="Tổng đơn hàng" value={stats.totalOrders} />
+            <StatTile label="Chờ xác nhận" value={stats.statusCounts.pending || 0} sub={STATUS_LABELS_VN.pending} />
+            <StatTile label="Hoàn tất" value={stats.statusCounts.completed || 0} sub={STATUS_LABELS_VN.completed} />
+          </div>
+          <div className="border border-hairline p-6">
+            <div className="eyebrow mb-4">Doanh thu 30 ngày qua</div>
+            <DailyRevenueBars daily={stats.daily} />
+          </div>
+        </div>
+      )}
 
       <div className="mb-6 pb-6 border-b border-hairline flex flex-col md:flex-row gap-4 md:items-center justify-between">
         <div className="flex gap-2 flex-wrap">

@@ -108,6 +108,59 @@ const getOrders = asyncHandler(async (req, res) => {
     res.json({ success: true, count: orders.length, data: orders });
 });
 
+// @desc    Thống kê doanh thu + đơn hàng cho admin dashboard
+// @route   GET /api/orders/stats
+// @access  Admin
+const getOrderStats = asyncHandler(async (req, res) => {
+    // Doanh thu = tiền đã thực thu: đơn online đã thanh toán, hoặc COD đã giao xong
+    const revenueMatch = {
+        $or: [
+            { paymentStatus: 'paid' },
+            { paymentMethod: 'cod', status: 'completed' }
+        ]
+    };
+
+    const since = new Date();
+    since.setDate(since.getDate() - 29);
+    since.setHours(0, 0, 0, 0);
+
+    const [totalsAgg, byStatus, daily, totalOrders] = await Promise.all([
+        Order.aggregate([
+            { $match: revenueMatch },
+            { $group: { _id: null, revenue: { $sum: '$total' }, count: { $sum: 1 } } }
+        ]),
+        Order.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]),
+        Order.aggregate([
+            { $match: { ...revenueMatch, createdAt: { $gte: since } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } },
+                    revenue: { $sum: '$total' },
+                    orders: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]),
+        Order.countDocuments()
+    ]);
+
+    const statusCounts = {};
+    for (const s of byStatus) statusCounts[s._id] = s.count;
+
+    res.json({
+        success: true,
+        data: {
+            totalOrders,
+            revenue: totalsAgg[0]?.revenue || 0,
+            paidOrders: totalsAgg[0]?.count || 0,
+            statusCounts,
+            daily: daily.map(d => ({ date: d._id, revenue: d.revenue, orders: d.orders }))
+        }
+    });
+});
+
 // @desc    Lịch sử đơn hàng của user đang đăng nhập
 // @route   GET /api/orders/mine
 // @access  Private
@@ -204,6 +257,7 @@ module.exports = {
     createOrder,
     getOrders,
     getMyOrders,
+    getOrderStats,
     updateOrder,
     trackOrder
 };

@@ -6,6 +6,7 @@ const {
     createOrder,
     getOrders,
     getMyOrders,
+    getOrderStats,
     updateOrder,
     trackOrder
 } = require('../controllers/orderController');
@@ -20,6 +21,7 @@ router.get('/track/:id', trackOrder);
 router.get('/mine', authRequired, getMyOrders);
 
 // Admin-only routes
+router.get('/stats', authRequired, requireRole('admin'), getOrderStats);
 router.get('/', authRequired, requireRole('admin'), getOrders);
 router.put('/:id', authRequired, requireRole('admin'), updateOrder);
 
