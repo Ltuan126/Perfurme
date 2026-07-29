@@ -7,7 +7,7 @@ A fullstack e-commerce web application built with the MERN stack, featuring auth
 - **Backend**: Running on Render.
 
 ## ✨ Features
-- **Frontend & UI**: Product list, product details, dark mode & responsive UI (Tailwind CSS).
+- **Frontend & UI**: Product list, product details, responsive UI (Tailwind CSS). Dark mode is on the roadmap, not built yet.
 - **Search & Filter**: Search products by name/description.
 - **Shopping**: Shopping cart, COD ordering (orders saved to DB).
 - **Authentication**: Secure Registration / Login using JWT (JSON Web Tokens).
@@ -78,10 +78,12 @@ Protected routes (requires admin + JWT):
 - `DELETE /api/products/:id`
 - `GET /api/orders`
 - `PUT /api/orders/:id`
+- `PUT /api/qas/:id/answer`
+
+Protected routes (any logged-in user, JWT only — not admin-restricted):
 - `GET /api/me`
 - `PUT /api/me`
 - `POST /api/qas`
-- `PUT /api/qas/:id/answer`
 
 ## 📂 Project Structure
 ```text

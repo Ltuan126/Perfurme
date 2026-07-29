@@ -23,12 +23,11 @@ Hạng được tính lại sau mỗi lần cộng điểm.
 - Navbar: hiển thị Tier và Points (lấy từ API `/api/me` nếu có, nếu không thì fallback localStorage theo người dùng đang đăng nhập FE).
 - Checkout: hiển thị Tạm tính, Giảm combo, Thành tiền và ước tính điểm nhận được.
 
-## Lưu trữ demo (FE-only)
-- Điểm và tier được lưu localStorage theo khóa `loyalty_points_<username>`.
-- Khi có backend đầy đủ, nên chuyển sang cập nhật điểm/tier trên server và đọc từ `/api/me`.
+## Lưu trữ
+- Điểm và tier được backend tính và lưu trên `User.points` / `User.tier` khi tạo đơn COD thành công (`src/controllers/orderController.js`, `src/services/loyalty.js`), không còn ở localStorage.
+- `src/utils/loyalty.js` ở frontend chỉ dùng để ước tính hiển thị tạm thời trước khi gọi API, không phải nguồn dữ liệu thật.
 
 ## Hướng phát triển
 - Hiển thị tiến độ lên hạng kế tiếp và ưu đãi theo từng hạng.
 - Cho phép đổi điểm lấy mã giảm giá.
 - Gắn cờ `isMini` trong data sản phẩm thay vì dò theo tên.
-- Khi tích hợp backend: dùng user từ JWT, cộng điểm trên POST /api/orders, đồng bộ `/api/me`.
