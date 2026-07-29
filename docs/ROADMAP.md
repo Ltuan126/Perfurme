@@ -143,8 +143,4 @@ db.products.createIndex({ price: 1 })
 - i18n (vi/en) + Dark mode.
 
 ---
-## Status
-(Điền dần: DONE / IN PROGRESS / TODO) cho từng mục khi triển khai.
-
----
 **Happy building!** ✨
